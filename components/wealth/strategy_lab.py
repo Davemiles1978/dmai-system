@@ -55,7 +55,7 @@ class StrategyLab:
         with self._conn() as c:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS strategy_runs ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "id SERIAL PRIMARY KEY, "
                 "ts TEXT DEFAULT (datetime('now')), "
                 "variant TEXT NOT NULL, "
                 "trades_considered INTEGER, "

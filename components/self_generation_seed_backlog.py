@@ -145,13 +145,11 @@ def seed_backlog(
 
     conn = safe_open_kdb(db_path, timeout=30.0)
     try:
-        conn.execute("PRAGMA journal_mode=WAL")
         # Discover the actual capabilities table columns so we only insert
         # into columns that exist. Post-PR HH the shape is:
         # id, name, type, capability_type, description, provenance,
         # judge_confidence, runtime_mode, ...
         cols = {row[1] for row in conn.execute(
-            "PRAGMA table_info(capabilities)"
         ).fetchall()}
 
         inserted = 0

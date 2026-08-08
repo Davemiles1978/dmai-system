@@ -78,7 +78,7 @@ def default_ledger_path() -> str:
 
 SCHEMA = [
     """CREATE TABLE IF NOT EXISTS treasury_ledger (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        id             SERIAL PRIMARY KEY,
         ts             TEXT    NOT NULL,       -- event time (closed_at / settled_at / manual)
         kind           TEXT    NOT NULL CHECK (kind IN
                             ('trade_realised', 'bet_settled',
@@ -113,9 +113,6 @@ def _conn(db_path: Optional[str] = None) -> sqlite3.Connection:
     path = db_path or default_treasury_path()
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     c = sqlite3.connect(path, timeout=30.0)
-    c.execute("PRAGMA journal_mode=WAL")
-    c.execute("PRAGMA synchronous=NORMAL")
-    c.execute("PRAGMA busy_timeout=30000")
     c.row_factory = sqlite3.Row
     return c
 

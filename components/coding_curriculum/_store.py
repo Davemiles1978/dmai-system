@@ -64,9 +64,6 @@ def _connect(db_path: str) -> sqlite3.Connection:
     # fresh_blood_injector, materialiser) against the same DB. Short
     # timeouts here surface as "database is locked" 500s.
     conn = sqlite3.connect(db_path, timeout=30.0)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA busy_timeout=30000")
     conn.row_factory = sqlite3.Row
     return conn
 

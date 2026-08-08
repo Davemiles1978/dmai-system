@@ -48,7 +48,7 @@ class SelfGenAutonomyTracker:
                 conn.executescript(
                     """
                     CREATE TABLE IF NOT EXISTS sg_autonomy_log (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id SERIAL PRIMARY KEY,
                         ts TEXT NOT NULL,
                         event TEXT NOT NULL,
                         gap_name TEXT,

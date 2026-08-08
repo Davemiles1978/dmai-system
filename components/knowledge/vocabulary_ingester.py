@@ -58,7 +58,6 @@ _VOCAB_SUBBATCH_SIZE = 10
 
 # busy_timeout (ms) forced on the vocab write connection only, inside
 # _write_batch. The global default is 30000 (components/db.py
-# _PER_CONNECTION_PRAGMAS) — we do NOT change that; other callers keep 30 s.
 # A short 2 s timeout makes the writer fast-fail on a busy DB and fall back to
 # the per-row path within ~2 s instead of monopolising the write mutex for 30 s.
 _VOCAB_BUSY_TIMEOUT_MS = 2000
@@ -500,7 +499,6 @@ class VocabularyIngester:
                         # Vocab connection only: fast-fail on a busy DB (~2 s)
                         # instead of retrying for the 30 s global default, so we
                         # release the write mutex quickly and fall back per-row.
-                        conn.execute("PRAGMA busy_timeout=%d" % _VOCAB_BUSY_TIMEOUT_MS)
                         conn.executemany(_VOCAB_INSERT_SQL, sub)
                         conn.commit()
                     self.transactions += 1

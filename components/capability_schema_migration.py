@@ -39,7 +39,6 @@ def _resolve_db_path() -> str:
 
 
 def _existing_columns(conn: sqlite3.Connection, table: str) -> List[str]:
-    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
     return [r[1] for r in rows]
 
 
@@ -99,8 +98,6 @@ def migrate_capabilities_schema(*,
         conn = safe_open_kdb(path, timeout=30.0)
     except Exception:  # noqa: BLE001
         conn = safe_open_kdb(path, timeout=30.0)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA busy_timeout=30000")
     try:
         # Snapshot before
         cols_before = _existing_columns(conn, "capabilities")

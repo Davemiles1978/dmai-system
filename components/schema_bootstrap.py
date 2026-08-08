@@ -76,7 +76,7 @@ _EXPLICIT_FALLBACK_SCHEMAS = [
     );""",
     "CREATE INDEX IF NOT EXISTS idx_brain_domain ON brain_entries(domain);",
     """CREATE TABLE IF NOT EXISTS brain_load_log (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         domain TEXT,
         entries_added INTEGER,
         ts TEXT DEFAULT (datetime('now'))
@@ -103,7 +103,7 @@ _EXPLICIT_FALLBACK_SCHEMAS = [
     # so a mismatched fallback would silently lock in the wrong columns for any
     # new DB. Kept in sync with persona_registry.py's real DDL.
     """CREATE TABLE IF NOT EXISTS persona_usage (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         ts TEXT DEFAULT (datetime('now')),
         persona TEXT,
         component TEXT,
@@ -169,14 +169,12 @@ _REQUIRED_COLUMNS = {
 def _ensure_columns(conn: sqlite3.Connection, result: Dict) -> None:
     """For each table in _REQUIRED_COLUMNS, add any missing columns.
 
-    Idempotent: PRAGMA table_info reveals existing columns; we only ALTER
     for ones that don't exist yet. ALTER TABLE ADD COLUMN is fast even on
     large tables in SQLite because it doesn't rewrite the table.
     """
     cur = conn.cursor()
     for table, cols in _REQUIRED_COLUMNS.items():
         try:
-            existing = {row[1] for row in cur.execute(f"PRAGMA table_info({table})").fetchall()}
             if not existing:
                 # table doesn't exist — skip (CREATE pass should have made it)
                 continue

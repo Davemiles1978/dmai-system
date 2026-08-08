@@ -196,8 +196,6 @@ class GraphProjector:
         except Exception:
             pass
         try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=90000")
             self._ensure_tables(conn)
             self._acquire_write_slot(conn)
             self._clear(conn)
@@ -330,7 +328,6 @@ class GraphProjector:
             # Detect which columns exist so we don't SELECT a missing
             # column and blow up on legacy DBs.
             cols = {
-                row[1] for row in conn.execute("PRAGMA table_info(insights)").fetchall()
             }
             topic_selects: list[str] = []
             for col in ("source_topic", "target_topic", "concept", "domain"):

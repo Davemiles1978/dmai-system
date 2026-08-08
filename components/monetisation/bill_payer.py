@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS mon_bills (
     created_at REAL NOT NULL
 );
 CREATE TABLE IF NOT EXISTS mon_bill_payments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     bill_id TEXT NOT NULL,
     amount REAL NOT NULL,
     status TEXT NOT NULL,
@@ -88,8 +88,6 @@ class BillPayer:
         # handles missing tables on demand.
         c = safe_open_kdb(self.db_path, timeout=30.0)
         try:
-            c.execute("PRAGMA journal_mode=WAL")
-            c.execute("PRAGMA synchronous=NORMAL")
         except Exception:
             pass
         c.row_factory = sqlite3.Row

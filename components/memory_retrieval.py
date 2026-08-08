@@ -170,7 +170,6 @@ def _search_knowledge_db(query: str, top_k: int) -> MemoryResult:
     hits = []
     try:
         conn = safe_open_kdb(str(_KNOWLEDGE_DB), read_only=True)
-        conn.execute("PRAGMA journal_mode=WAL")
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
 

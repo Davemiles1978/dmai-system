@@ -75,8 +75,6 @@ class WealthAllocator:
         # Integrity check + quarantine removed (was destroying shared tables).
         c = safe_open_kdb(self.db_path, timeout=30.0)
         try:
-            c.execute("PRAGMA journal_mode=WAL")
-            c.execute("PRAGMA synchronous=NORMAL")
         except Exception:
             pass
         c.row_factory = sqlite3.Row

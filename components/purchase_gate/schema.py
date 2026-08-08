@@ -3,7 +3,7 @@ from __future__ import annotations
 
 SCHEMA = [
     """CREATE TABLE IF NOT EXISTS purchase_proposals (
-        id                        INTEGER PRIMARY KEY AUTOINCREMENT,
+        id                        SERIAL PRIMARY KEY,
         created_ts                TEXT    NOT NULL,
         hardware_id               INTEGER NOT NULL,
         hw_name                   TEXT    NOT NULL,

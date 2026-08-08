@@ -349,8 +349,6 @@ def diagnose_self_generation(min_confidence: Optional[float] = None,
             conn = safe_open_kdb(db_path, timeout=30.0, read_only=True)
         except Exception:  # noqa: BLE001
             conn = safe_open_kdb(db_path, timeout=30.0)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
     except sqlite3.OperationalError as e:
         result["ok"] = False
         result["error"] = f"connect failed: {e}"

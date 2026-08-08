@@ -45,7 +45,7 @@ class ConversationMemory:
         with self._lock, self._conn() as conn:
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS conv_messages (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     session_id TEXT NOT NULL,
                     ts TEXT NOT NULL,
                     role TEXT NOT NULL,

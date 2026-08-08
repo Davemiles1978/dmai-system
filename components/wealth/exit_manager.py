@@ -69,7 +69,7 @@ class ExitManager:
         with self._conn() as c:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS at_exits ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "id SERIAL PRIMARY KEY, "
                 "ts TEXT DEFAULT (datetime('now')), "
                 "symbol TEXT NOT NULL, "
                 "qty REAL, "

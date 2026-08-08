@@ -134,8 +134,6 @@ def _safe_connect(db_path: str) -> sqlite3.Connection:
         # Test / fallback path: still set the important pragmas so unit
         # tests exercise WAL + a real busy_timeout, matching prod.
         conn = sqlite3.connect(db_path, timeout=30.0)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA busy_timeout=30000")
         return conn
 
 

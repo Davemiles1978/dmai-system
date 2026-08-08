@@ -53,7 +53,7 @@ SCHEMA = [
 
     # Every trader signal (whether EV-gated or not).
     """CREATE TABLE IF NOT EXISTS training_paper_trades (
-        id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+        id                  SERIAL PRIMARY KEY,
         created_ts          REAL NOT NULL,
         symbol              TEXT NOT NULL,
         side                TEXT NOT NULL,
@@ -86,7 +86,6 @@ def init_schema(db_path: Optional[str] = None) -> None:
     path = db_path or _db_path()
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with safe_open_kdb(path, timeout=30.0) as c:
-        c.execute("PRAGMA busy_timeout=30000")
         for stmt in SCHEMA:
             c.execute(stmt)
         c.commit()
@@ -152,7 +151,6 @@ def record_paper_tip(
     now = time.time()
     try:
         with safe_open_kdb(path, timeout=30.0) as c:
-            c.execute("PRAGMA busy_timeout=30000")
             c.execute(
                 "INSERT INTO training_paper_tips ("
                 "id, created_ts, event_name, market, selection, decimal_odds, "
@@ -190,7 +188,6 @@ def settle_paper_tip(
         raise ValueError(f"bad outcome: {outcome!r}")
     path = db_path or _db_path()
     with safe_open_kdb(path, timeout=30.0) as c:
-        c.execute("PRAGMA busy_timeout=30000")
         row = c.execute(
             "SELECT decimal_odds, recommended_stake, outcome FROM training_paper_tips "
             "WHERE id = ?", (tip_id,),
@@ -253,7 +250,6 @@ def record_paper_trade(
     init_schema(path)
     try:
         with safe_open_kdb(path, timeout=30.0) as c:
-            c.execute("PRAGMA busy_timeout=30000")
             cur = c.execute(
                 "INSERT INTO training_paper_trades ("
                 "created_ts, symbol, side, entry_price, qty, stake, paper_bankroll, "
@@ -280,7 +276,6 @@ def settle_paper_trade(
         return False
     path = db_path or _db_path()
     with safe_open_kdb(path, timeout=30.0) as c:
-        c.execute("PRAGMA busy_timeout=30000")
         row = c.execute(
             "SELECT side, entry_price, qty, outcome FROM training_paper_trades "
             "WHERE id = ?", (trade_id,),
@@ -332,7 +327,6 @@ def list_paper_tips(
         "prediction_id", "outcome", "settled_ts", "profit_loss", "source",
     ]
     with safe_open_kdb(path, timeout=30.0) as c:
-        c.execute("PRAGMA busy_timeout=30000")
         rows = c.execute(q, args).fetchall()
     return [dict(zip(cols, r)) for r in rows]
 
@@ -356,7 +350,6 @@ def list_paper_trades(
     q += " ORDER BY created_ts DESC LIMIT ?"
     args.append(int(limit))
     with safe_open_kdb(path, timeout=30.0) as c:
-        c.execute("PRAGMA busy_timeout=30000")
         rows = c.execute(q, args).fetchall()
     return [dict(zip(cols, r)) for r in rows]
 
@@ -371,7 +364,6 @@ def performance(*, db_path: Optional[str] = None) -> Dict[str, Any]:
     out: Dict[str, Any] = {"paper_bankroll": paper_bankroll()}
 
     with safe_open_kdb(path, timeout=30.0) as c:
-        c.execute("PRAGMA busy_timeout=30000")
 
         # Bets
         rows = c.execute(

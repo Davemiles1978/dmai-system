@@ -174,7 +174,6 @@ def _promote_coding_pattern(exercise: Exercise,
 
     conn = sqlite3.connect(db_path, timeout=30.0)
     try:
-        conn.execute("PRAGMA busy_timeout=30000")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS capabilities (
                 id                TEXT PRIMARY KEY,

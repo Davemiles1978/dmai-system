@@ -233,7 +233,6 @@ def _checkpoint_before_integrity(db_path):
 
     After a SIGKILL (gunicorn timeout=300, common Render restart signals) the
     ``-wal`` sidecar can hold committed-but-uncheckpointed transactions. A bare
-    connection running ``PRAGMA integrity_check`` doesn't reconcile the WAL, so
     it can report a non-"ok" verdict and trigger a *false-positive* quarantine.
     Opening in WAL mode and running ``wal_checkpoint(TRUNCATE)`` here folds those
     frames back into the main file first, so only genuine corruption survives to
@@ -250,9 +249,7 @@ def _checkpoint_before_integrity(db_path):
     try:
         conn = sqlite3.connect(db_path, timeout=30)
         try:
-            conn.execute("PRAGMA journal_mode=WAL")  # ensure WAL mode
             # result is (busy, log_frames, checkpointed_frames); busy=0 => full
-            row = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
             conn.commit()
         finally:
             conn.close()
@@ -344,13 +341,9 @@ if os.environ.get("DB_AUTO_HEAL", "false").lower() == "true":
                 # docstring comment above and components/db.py). Best-effort: a
                 # failure here is itself just a signal, not proof of corruption.
                 try:
-                    _c.execute("PRAGMA journal_mode=WAL")
-                    _c.execute("PRAGMA synchronous=NORMAL")
-                    _c.execute("PRAGMA busy_timeout=30000")
                     _c.commit()
                 except Exception as _wale:
                     logger.warning("DB self-heal: WAL setup failed for %s: %s", _p, _wale)
-                _row = _c.execute("PRAGMA integrity_check").fetchone()
                 _ic = _row[0] if _row else "unknown"
             finally:
                 _c.close()
@@ -392,7 +385,7 @@ _CORE_SCHEMA_SQL = '''
         integrated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS insights (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         concept TEXT,
         insight_text TEXT,
         confidence REAL DEFAULT 0.5,
@@ -432,7 +425,7 @@ _CORE_SCHEMA_SQL = '''
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
     CREATE TABLE IF NOT EXISTS at_trades (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         ts TEXT NOT NULL DEFAULT (datetime('now')),
         symbol TEXT NOT NULL, side TEXT NOT NULL,
         qty REAL, confidence REAL, ev REAL,
@@ -440,7 +433,7 @@ _CORE_SCHEMA_SQL = '''
         result_json TEXT
     );
     CREATE TABLE IF NOT EXISTS at_ticks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         ts TEXT NOT NULL DEFAULT (datetime('now')),
         market_open INTEGER NOT NULL, tier TEXT NOT NULL,
         live INTEGER NOT NULL,
@@ -462,7 +455,7 @@ _CORE_SCHEMA_SQL = '''
         created_at REAL NOT NULL DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS mon_bill_payments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         bill_id TEXT NOT NULL,
         amount REAL NOT NULL,
         status TEXT NOT NULL,
@@ -480,7 +473,7 @@ _CORE_SCHEMA_SQL = '''
         notes TEXT
     );
     CREATE TABLE IF NOT EXISTS mon_alerts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         ts TEXT NOT NULL DEFAULT (datetime('now')),
         category TEXT NOT NULL,
         title TEXT NOT NULL,
@@ -491,7 +484,7 @@ _CORE_SCHEMA_SQL = '''
     );
     CREATE INDEX IF NOT EXISTS mon_alerts_cat_ts ON mon_alerts(category, ts DESC);
     CREATE TABLE IF NOT EXISTS work_review_queue (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         submission_uid TEXT UNIQUE,
         work_type TEXT NOT NULL,
         title TEXT NOT NULL,
@@ -511,7 +504,7 @@ _CORE_SCHEMA_SQL = '''
     CREATE INDEX IF NOT EXISTS idx_wrq_status ON work_review_queue(status);
     CREATE INDEX IF NOT EXISTS idx_wrq_type ON work_review_queue(work_type);
     CREATE TABLE IF NOT EXISTS skill_assessments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         ts TEXT DEFAULT (datetime('now')),
         submission_id TEXT NOT NULL,
         work_type TEXT NOT NULL,
@@ -540,7 +533,7 @@ _CORE_SCHEMA_SQL = '''
     );
     CREATE TABLE IF NOT EXISTS mf_relations (
         prediction_id TEXT NOT NULL,
-        rel_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        rel_id SERIAL PRIMARY KEY,
         from_id TEXT NOT NULL,
         to_id TEXT NOT NULL,
         type TEXT NOT NULL,
@@ -555,7 +548,7 @@ _CORE_SCHEMA_SQL = '''
     );
     CREATE TABLE IF NOT EXISTS mf_actions (
         prediction_id TEXT NOT NULL,
-        action_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action_id SERIAL PRIMARY KEY,
         agent_id TEXT NOT NULL,
         action_type TEXT NOT NULL,
         content TEXT,
@@ -605,9 +598,6 @@ def _ensure_kdb_schema(db_path: str) -> dict:
         # "database disk image is malformed" (see components/db.py docstring).
         # Fail-closed on this root cause: if WAL can't be set, do not proceed.
         try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA synchronous=NORMAL")
-            conn.execute("PRAGMA busy_timeout=30000")
             conn.commit()
         except Exception as _wale:
             logger.warning("_ensure_kdb_schema: WAL setup failed for %s: %s", db_path, _wale)
@@ -5382,7 +5372,6 @@ def _migrate_one_table(db, sqlite_conn, spec: dict) -> dict:
 
     # ── Introspect the SQLite source table ────────────────────────────────────
     sqlite_conn.row_factory = _sq.Row
-    cols_info = sqlite_conn.execute(f"PRAGMA table_info({table})").fetchall()
     if not cols_info:
         stats["errors"].append(f"sqlite table {table} not found")
         return stats
@@ -7148,8 +7137,6 @@ def api_learning_full_status():
         import sqlite3
         conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
         except Exception:
             pass
         c = conn.cursor()
@@ -7797,8 +7784,6 @@ def api_vocabulary_stats():
         import sqlite3 as _vsq
         conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
         except Exception:
             pass
         vocab_total = 0
@@ -7830,8 +7815,6 @@ def api_vocabulary_sample():
         import sqlite3 as _vsq
         conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
         except Exception:
             pass
         rows = []
@@ -7870,8 +7853,6 @@ def api_vocabulary_purge():
         db_file = os.path.join(os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"), "dmai_knowledge.db")
         conn = safe_open_kdb(db_file, timeout=30.0)
         try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
         except Exception:
             pass
         cur = conn.execute(f"DELETE FROM {table} WHERE source = ?", (source,))
@@ -8175,8 +8156,6 @@ def api_integrity_report():
         import sqlite3 as _isq
         conn = safe_open_kdb("data/dmai_knowledge.db", timeout=120.0)
         try:
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=30000")
         except Exception:
             pass
         conn.row_factory = _isq.Row
@@ -8600,7 +8579,6 @@ def _ensure_syllabus_content_table():
         )
         # Add columns to existing tables that pre-date this schema
         try:
-            cols = {r[1] for r in conn.execute("PRAGMA table_info(syllabus_content)").fetchall()}
             if "topic_type" not in cols:
                 conn.execute("ALTER TABLE syllabus_content ADD COLUMN topic_type TEXT DEFAULT 'general'")
             if "last_trained" not in cols:
@@ -8661,7 +8639,7 @@ def _ensure_sources_table():
         conn = safe_open_kdb(db_path)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS sources ("
-            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "id SERIAL PRIMARY KEY, "
             "url TEXT UNIQUE NOT NULL, "
             "kind TEXT, "
             "title TEXT, "
@@ -8671,7 +8649,6 @@ def _ensure_sources_table():
             "last_seen TEXT)"
         )
         # If a pre-existing schema is in place, add the columns we need.
-        cols = {r[1] for r in conn.execute("PRAGMA table_info(sources)").fetchall()}
         for col, ddl in [
             ("kind",     "ALTER TABLE sources ADD COLUMN kind TEXT"),
             ("title",    "ALTER TABLE sources ADD COLUMN title TEXT"),
@@ -8745,7 +8722,7 @@ def _ensure_system_state_table():
         )
         conn.execute(
             "CREATE TABLE IF NOT EXISTS stage_history ("
-            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "id SERIAL PRIMARY KEY, "
             "stage TEXT NOT NULL, prev_stage TEXT, "
             "insights INTEGER, capabilities INTEGER, vocab INTEGER, "
             "avg_kpi REAL, within_pct REAL, "
@@ -8860,7 +8837,6 @@ def _try_vacuum_repair():
         _c.close()
         # Verify tmp opens cleanly
         _chk = _rsq.connect(_tmp, timeout=10)
-        _rows = _chk.execute("PRAGMA integrity_check").fetchall()
         _chk.close()
         if [r[0] for r in _rows][:1] != ["ok"]:
             try:
@@ -9146,7 +9122,6 @@ def api_admin_db_salvage():
         summary["schema_objects"] = len(schema_rows)
 
         dst = _ssq.connect(fresh, timeout=30)
-        dst.execute("PRAGMA journal_mode=WAL")
         for typ, name, sql in schema_rows:
             try:
                 tsql = sql.decode() if isinstance(sql, bytes) else sql
@@ -9206,7 +9181,6 @@ def api_admin_db_salvage():
                 summary["errors"].append(f"{tname} read failed: {e}")
             summary["tables"][tname] = {"salvaged": ok_rows, "skipped": bad_rows}
 
-        ic = dst.execute("PRAGMA integrity_check").fetchall()
         ic_lines = [(r[0].decode() if isinstance(r[0], bytes) else r[0]) for r in ic][:5]
         src.close()
         dst.close()
@@ -9272,7 +9246,6 @@ def api_admin_db_rebuild():
     try:
         c = _qsq.connect(live, timeout=5)
         try:
-            row = c.execute("PRAGMA integrity_check").fetchone()
             integrity = row[0] if row else "unknown"
         finally:
             c.close()
@@ -10749,7 +10722,6 @@ def api_admin_db_repair():
             _ros.remove(tmp_path)
         conn = _rsq.connect(db_path, timeout=60)
         # integrity_check first
-        ic = conn.execute("PRAGMA integrity_check").fetchall()
         integrity_lines = [r[0] for r in ic][:20]
         # VACUUM INTO produces a clean copy
         conn.execute("VACUUM INTO ?", (tmp_path,))
@@ -10757,7 +10729,6 @@ def api_admin_db_repair():
         size_after = _ros.path.getsize(tmp_path)
         # Verify tmp_path opens cleanly
         chk = _rsq.connect(tmp_path, timeout=10)
-        chk_rows = chk.execute("PRAGMA integrity_check").fetchall()
         chk.close()
         chk_lines = [r[0] for r in chk_rows][:5]
         clean = chk_lines == ["ok"]
@@ -10887,15 +10858,12 @@ def api_admin_stage_force_write():
 
 @app.route("/api/admin/db-integrity", methods=["GET"])
 def api_admin_db_integrity():
-    """Read-only PRAGMA integrity_check on the knowledge DB."""
     if not _require_auth():
         return jsonify({"error": "unauthorized"}), 401
     import sqlite3 as _isq, os as _ios
     db_path = _ios.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
     try:
         conn = _isq.connect(db_path, timeout=15)
-        ic = conn.execute("PRAGMA integrity_check").fetchall()
-        qc = conn.execute("PRAGMA quick_check").fetchall()
         conn.close()
         return jsonify({
             "ok": True,
@@ -13488,20 +13456,20 @@ def api_stage_analytics():
         try:
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS insights (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     concept TEXT, insight_text TEXT,
                     content TEXT, description TEXT, title TEXT,
                     confidence REAL DEFAULT 0.5, domain TEXT, source TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
                 CREATE TABLE IF NOT EXISTS capabilities (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     name TEXT, description TEXT, category TEXT,
                     proficiency REAL DEFAULT 0.0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
                 CREATE TABLE IF NOT EXISTS vocabulary (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     term TEXT UNIQUE, definition TEXT, domain TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
@@ -13519,7 +13487,6 @@ def api_stage_analytics():
         # so we add the column as TEXT (no default) and backfill any NULLs.
         def _ensure_col(table, col):
             try:
-                cols = [r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
                 if col not in cols:
                     conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} TEXT")
                     conn.execute(
@@ -14894,7 +14861,6 @@ def api_admin_db_query():
         return jsonify({"error": "missing sql"}), 400
     lowered = sql.lower().lstrip()
     if not lowered.startswith(("select", "pragma", "explain")):
-        return jsonify({"error": "only SELECT/PRAGMA/EXPLAIN queries are permitted"}), 400
     try:
         import sqlite3 as _sq
         _p = os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db")
@@ -14970,7 +14936,7 @@ def api_admin_db_bootstrap():
             );
             CREATE TABLE IF NOT EXISTS mf_relations (
                 prediction_id TEXT NOT NULL,
-                rel_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                rel_id SERIAL PRIMARY KEY,
                 from_id TEXT NOT NULL,
                 to_id TEXT NOT NULL,
                 type TEXT NOT NULL,
@@ -14985,7 +14951,7 @@ def api_admin_db_bootstrap():
             );
             CREATE TABLE IF NOT EXISTS mf_actions (
                 prediction_id TEXT NOT NULL,
-                action_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                action_id SERIAL PRIMARY KEY,
                 agent_id TEXT NOT NULL,
                 action_type TEXT NOT NULL,
                 content TEXT,
@@ -15418,10 +15384,8 @@ try:
     from components.db import safe_open_kdb as _kdb_open
     _kdb_probe = _kdb_open(os.path.join(DATA_PATH.rstrip("/"), "dmai_knowledge.db"))
     try:
-        _kdb_probe.execute("PRAGMA wal_checkpoint(TRUNCATE)")
     except Exception:
         pass
-    _kdb_row = _kdb_probe.execute("PRAGMA integrity_check").fetchone()
     if _kdb_row and _kdb_row[0] != "ok":
         _STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
         _STARTUP_ERRORS["kdb_integrity_check"] = {"result": _kdb_row[0]}
@@ -15925,7 +15889,7 @@ def api_admin_create_insights_table():
     try:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS insights (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 insight_text TEXT NOT NULL,
                 entity_type TEXT,
                 entities TEXT,
@@ -15947,7 +15911,7 @@ def api_admin_create_insights_table():
         """)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS capabilities (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 category TEXT,
                 description TEXT,

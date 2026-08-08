@@ -77,7 +77,7 @@ class APIKeyStore:
         with self._get_conn() as conn:
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS api_keys (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     provider TEXT NOT NULL,
                     key_hash TEXT NOT NULL UNIQUE,
                     key_prefix TEXT NOT NULL,

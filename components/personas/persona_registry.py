@@ -70,7 +70,7 @@ class PersonaRegistry:
             )
             c.execute(
                 "CREATE TABLE IF NOT EXISTS persona_usage ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "id SERIAL PRIMARY KEY, "
                 "ts TEXT DEFAULT (datetime('now')), "
                 "persona TEXT, "
                 "component TEXT, "

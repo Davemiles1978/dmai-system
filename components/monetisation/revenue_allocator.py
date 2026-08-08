@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS mon_income_events (
     raw_json TEXT
 );
 CREATE TABLE IF NOT EXISTS mon_wallet_ledger (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     wallet TEXT NOT NULL,
     delta REAL NOT NULL,
     balance_after REAL NOT NULL,
@@ -71,7 +71,6 @@ class RevenueAllocator:
 
     def _conn(self):
         c = safe_open_kdb(self.db_path, timeout=30.0)
-        c.execute("PRAGMA journal_mode=WAL")
         c.row_factory = sqlite3.Row
         return c
 

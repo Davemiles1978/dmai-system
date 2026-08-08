@@ -94,7 +94,6 @@ class VerificationResult:
 
 def _safe_connect(db_path: str) -> sqlite3.Connection:
     conn = safe_open_kdb(db_path, timeout=15.0)
-    conn.execute("PRAGMA journal_mode=WAL")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -104,7 +103,7 @@ def ensure_verification_table(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
         CREATE TABLE IF NOT EXISTS verification_log (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id SERIAL PRIMARY KEY,
           capability_id TEXT NOT NULL,
           slug          TEXT NOT NULL,
           stage         TEXT NOT NULL,   -- isolated | orchestrator

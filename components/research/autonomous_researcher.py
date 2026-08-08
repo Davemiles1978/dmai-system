@@ -370,7 +370,6 @@ class AutonomousResearcher:
                 import sqlite3 as _sq
                 conn = safe_open_kdb("data/dmai_knowledge.db")
                 cur = conn.cursor()
-                cur.execute("PRAGMA table_info(capabilities)")
                 cols = [r[1] for r in cur.fetchall()]
                 name_col = next((c for c in ["name","capability","title"] if c in cols), None)
                 if name_col:

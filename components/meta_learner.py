@@ -26,7 +26,7 @@ class MetaLearningEngine:
         # Track learning outcomes
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS learning_outcomes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 topic TEXT,
                 strategy_used TEXT,
                 weight_before INTEGER,

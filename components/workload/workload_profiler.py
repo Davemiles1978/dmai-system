@@ -59,7 +59,7 @@ def default_workload_path() -> str:
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS workload_samples (
-    id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+    id                    SERIAL PRIMARY KEY,
     ts                    TEXT NOT NULL,
     cpu_percent           REAL,
     cpu_seconds_total     REAL,
@@ -94,9 +94,6 @@ def _connect(db_path: Optional[str] = None) -> sqlite3.Connection:
     path = db_path or default_workload_path()
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     c = sqlite3.connect(path, timeout=15.0)
-    c.execute("PRAGMA journal_mode=WAL;")
-    c.execute("PRAGMA busy_timeout=15000;")
-    c.execute("PRAGMA foreign_keys=ON;")
     c.row_factory = sqlite3.Row
     return c
 

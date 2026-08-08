@@ -34,7 +34,7 @@ LEDGER_DB_FILENAME = "dmai_ledger.db"
 
 SCHEMA = [
     """CREATE TABLE IF NOT EXISTS trades_ledger (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        id             SERIAL PRIMARY KEY,
         symbol         TEXT NOT NULL,
         side           TEXT NOT NULL CHECK (side IN ('buy', 'sell')),
         qty            REAL NOT NULL,
@@ -53,7 +53,7 @@ SCHEMA = [
     "CREATE INDEX IF NOT EXISTS ix_trades_opened ON trades_ledger(opened_at DESC)",
     "CREATE INDEX IF NOT EXISTS ix_trades_mode_status ON trades_ledger(mode, status)",
     """CREATE TABLE IF NOT EXISTS bets_ledger (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        id             SERIAL PRIMARY KEY,
         event          TEXT NOT NULL,
         selection      TEXT NOT NULL,
         odds           REAL,

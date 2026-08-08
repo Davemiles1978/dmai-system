@@ -200,8 +200,6 @@ class BettingAdvisor:
         # handles missing tables on demand.
         c = safe_open_kdb(self.db_path, timeout=30.0)
         try:
-            c.execute("PRAGMA journal_mode=WAL")
-            c.execute("PRAGMA synchronous=NORMAL")
         except Exception:
             pass
         c.row_factory = sqlite3.Row
@@ -225,7 +223,6 @@ class BettingAdvisor:
         """
         try:
             existing = {row[1] for row in
-                        c.execute("PRAGMA table_info(mon_tips)").fetchall()}
         except sqlite3.OperationalError:
             # Table doesn't exist yet — the CREATE TABLE from _SCHEMA just
             # ran, so this is impossible in normal flow. Bail quietly.

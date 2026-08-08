@@ -326,8 +326,6 @@ class AutonomousTrader:
             c = safe_open_kdb(self.db_path, timeout=30)
             c.row_factory = sqlite3.Row
             try:
-                c.execute("PRAGMA journal_mode=WAL")
-                c.execute("PRAGMA synchronous=NORMAL")
             except Exception:
                 pass
             return c
@@ -341,7 +339,6 @@ class AutonomousTrader:
             c = safe_open_kdb(self.db_path, timeout=30)
             c.row_factory = sqlite3.Row
             try:
-                c.execute("PRAGMA journal_mode=WAL")
             except Exception:
                 pass
             return c
@@ -368,7 +365,6 @@ class AutonomousTrader:
         try:
             fresh = safe_open_kdb(self.db_path, timeout=30)
             try:
-                fresh.execute("PRAGMA journal_mode=WAL")
                 for ddl in SCHEMA:
                     fresh.execute(ddl)
                 self._migrate_mode_column(fresh)
@@ -428,7 +424,6 @@ class AutonomousTrader:
         into a 30-second stall (observed live 2026-07-12 via
         /api/admin/db-lock-status).
 
-        Fast path: a read-only PRAGMA table_info check — no write mutex,
         no BUSY-wait — confirms the schema is in place, in which case we
         set the guard and skip _ensure_tables entirely. Fallback: only if
         boot bootstrap actually failed do we run the full ensure.
@@ -448,7 +443,6 @@ class AutonomousTrader:
         """Read-only check: does at_state exist with the 'mode' column?
 
         Runs on a fresh raw sqlite3 connection (NOT the KeepOpenProxy) so
-        it never acquires the process-wide write mutex. Only reads PRAGMAs.
         """
         import sqlite3 as _sq
         try:
@@ -464,7 +458,6 @@ class AutonomousTrader:
             ).fetchone()
             if not row:
                 return False
-            cols = [r[1] for r in raw.execute("PRAGMA table_info(at_state)").fetchall()]
             if "mode" not in cols:
                 return False
             # Also confirm the singleton row exists so get_at_mode/set_at_mode

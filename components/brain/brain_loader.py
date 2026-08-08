@@ -81,7 +81,7 @@ class ExpertBrain:
             )
             c.execute(
                 "CREATE TABLE IF NOT EXISTS brain_load_log ("
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "id SERIAL PRIMARY KEY, "
                 "ts TEXT DEFAULT (datetime('now')), "
                 "seed_version TEXT, "
                 "entries_loaded INTEGER, "

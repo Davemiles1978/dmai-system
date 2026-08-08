@@ -101,7 +101,6 @@ def _safe_connect(path: str) -> sqlite3.Connection:
 
 def _table_columns(conn: sqlite3.Connection, table: str) -> List[str]:
     try:
-        rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
         return [r["name"] for r in rows]
     except sqlite3.OperationalError:
         return []

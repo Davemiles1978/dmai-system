@@ -50,9 +50,6 @@ class PurchaseGateStore:
     def _conn(self) -> sqlite3.Connection:
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
         c = sqlite3.connect(self.db_path, timeout=30.0)
-        c.execute("PRAGMA journal_mode=WAL")
-        c.execute("PRAGMA synchronous=NORMAL")
-        c.execute("PRAGMA busy_timeout=30000")
         c.row_factory = sqlite3.Row
         return c
 

@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS mf_entities (
 );
 CREATE TABLE IF NOT EXISTS mf_relations (
     prediction_id TEXT NOT NULL,
-    rel_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    rel_id SERIAL PRIMARY KEY,
     from_id TEXT NOT NULL,
     to_id TEXT NOT NULL,
     type TEXT NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS mf_agents (
 );
 CREATE TABLE IF NOT EXISTS mf_actions (
     prediction_id TEXT NOT NULL,
-    action_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    action_id SERIAL PRIMARY KEY,
     agent_id TEXT NOT NULL,
     action_type TEXT NOT NULL,
     content TEXT,
@@ -71,7 +71,6 @@ class GraphStore:
 
     def _conn(self):
         c = safe_open_kdb(self.db_path, timeout=30.0)
-        c.execute("PRAGMA journal_mode=WAL")
         c.row_factory = sqlite3.Row
         return c
 

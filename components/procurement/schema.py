@@ -14,7 +14,7 @@ from __future__ import annotations
 
 SCHEMA = [
     """CREATE TABLE IF NOT EXISTS hardware_catalog (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        id             SERIAL PRIMARY KEY,
         source         TEXT    NOT NULL,
         url            TEXT,
         name           TEXT    NOT NULL,
@@ -34,7 +34,7 @@ SCHEMA = [
     "CREATE INDEX IF NOT EXISTS ix_catalog_source ON hardware_catalog(source)",
     "CREATE INDEX IF NOT EXISTS ix_catalog_name ON hardware_catalog(name)",
     """CREATE TABLE IF NOT EXISTS procurement_shortlist (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        id             SERIAL PRIMARY KEY,
         run_ts         TEXT    NOT NULL,
         rank           INTEGER NOT NULL,
         hardware_id    INTEGER NOT NULL

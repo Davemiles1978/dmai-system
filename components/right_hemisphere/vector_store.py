@@ -55,7 +55,6 @@ class VectorStore:
 
     def _init_db(self) -> None:
         with sqlite3.connect(str(self.db_path)) as conn:
-            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS vectors (
                     id TEXT PRIMARY KEY,
