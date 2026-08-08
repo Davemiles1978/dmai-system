@@ -1029,7 +1029,34 @@ try:
     exam_system = None
     try:
         from components.training.ExamSystem import create_exam_system
-        exam_system = create_exam_system(data_path=DATA_PATH)
+        # Import analysers for real exam grading (lazy-loaded to save memory)
+        image_analyser = None
+        audio_analyser = None
+        speech_analyser = None
+        try:
+            from components.content.image_analyser import ImageAnalyser
+            image_analyser = ImageAnalyser()
+            logger.info("ImageAnalyser loaded for exam grading")
+        except Exception as _ia_err:
+            logger.warning("ImageAnalyser not available: %s", _ia_err)
+        try:
+            from components.content.audio_analyser import AudioAnalyser
+            audio_analyser = AudioAnalyser()
+            logger.info("AudioAnalyser loaded for exam grading")
+        except Exception as _aa_err:
+            logger.warning("AudioAnalyser not available: %s", _aa_err)
+        try:
+            from components.content.speech_analyser import SpeechAnalyser
+            speech_analyser = SpeechAnalyser()
+            logger.info("SpeechAnalyser loaded for exam grading")
+        except Exception as _sa_err:
+            logger.warning("SpeechAnalyser not available: %s", _sa_err)
+        exam_system = create_exam_system(
+            data_path=DATA_PATH,
+            image_analyser=image_analyser,
+            audio_analyser=audio_analyser,
+            speech_analyser=speech_analyser,
+        )
         logger.info("ExamSystem created for training orchestrator")
     except Exception as _ex_err:
         logger.warning("ExamSystem not available: %s", _ex_err)
