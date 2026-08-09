@@ -665,6 +665,11 @@ _kn_db = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "dmai_knowledge.db")
 if os.environ.get("DATABASE_URL"):
     _kn_schema_result = {"core_ok": True, "bootstrap": {"skipped": "postgresql_active"}, "error": None}
     logger.info("Schema bootstrap skipped — PostgreSQL active, components create tables on demand")
+    # Migrate data from SQLite to PostgreSQL (runs once)
+    try:
+        _migrate_sqlite_to_postgres()
+    except Exception as _mig_err:
+        logger.warning("Data migration error: %s", _mig_err)
 else:
     _kn_schema_result = _ensure_kdb_schema(_kn_db)
 if _kn_schema_result.get("core_ok"):
@@ -15931,6 +15936,103 @@ def api_admin_create_insights_table():
         return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
+
+
+
+# ── SQLite → PostgreSQL Data Migration ────────────────────────────────────────
+def _migrate_sqlite_to_postgres():
+    """Copy data from SQLite to PostgreSQL. Runs once at startup if needed."""
+    import sqlite3 as _sq
+    import psycopg2 as _pg
+    
+    _sqlite_path = os.path.join(DATA_PATH, "dmai_knowledge.db")
+    if not os.path.exists(_sqlite_path):
+        logger.info("No SQLite DB to migrate from")
+        return
+    
+    _dsn = os.environ.get("DATABASE_URL", "")
+    if not _dsn:
+        return
+    if _dsn.startswith("postgres://"):
+        _dsn = "postgresql://" + _dsn[len("postgres://"):]
+    
+    # Check if migration already done
+    _migration_flag = os.path.join(DATA_PATH, ".migration_complete")
+    if os.path.exists(_migration_flag):
+        logger.info("Data migration already completed")
+        return
+    
+    logger.info("Starting SQLite → PostgreSQL data migration...")
+    
+    try:
+        _sq_conn = _sq.connect(_sqlite_path)
+        _pg_conn = _pg.connect(_dsn)
+        _pg_conn.autocommit = True
+        
+        # Tables to migrate (in dependency order)
+        _tables = [
+            "capabilities", "insights", "system_state", "syllabus_content",
+            "vocabulary", "encyclopaedia", "graph_neurons", "graph_synapses",
+            "mon_wallets", "mon_tips", "at_state", "at_trades", "at_ticks",
+            "work_review_queue", "skill_assessments",
+        ]
+        
+        _migrated = 0
+        _skipped = 0
+        
+        for _table in _tables:
+            try:
+                # Check if PostgreSQL table has data
+                _pg_cur = _pg_conn.cursor()
+                _pg_cur.execute(f"SELECT COUNT(*) FROM {_table}")
+                _pg_count = _pg_cur.fetchone()[0]
+                _pg_cur.close()
+                
+                if _pg_count > 0:
+                    logger.info("  %s: already has %d rows — skipping", _table, _pg_count)
+                    _skipped += 1
+                    continue
+                
+                # Read from SQLite
+                _sq_cur = _sq_conn.cursor()
+                _sq_cur.execute(f"SELECT * FROM {_table}")
+                _rows = _sq_cur.fetchall()
+                _cols = [d[0] for d in _sq_cur.description]
+                _sq_cur.close()
+                
+                if not _rows:
+                    continue
+                
+                # Write to PostgreSQL
+                _placeholders = ', '.join(['%s'] * len(_cols))
+                _col_list = ', '.join(f'"{c}"' for c in _cols)
+                _sql = f'INSERT INTO {_table} ({_col_list}) VALUES ({_placeholders}) ON CONFLICT DO NOTHING'
+                
+                _pg_cur = _pg_conn.cursor()
+                for _row in _rows:
+                    try:
+                        _pg_cur.execute(_sql, _row)
+                    except Exception:
+                        pass  # Skip rows that don't fit schema
+                _pg_cur.close()
+                
+                logger.info("  %s: migrated %d rows", _table, len(_rows))
+                _migrated += 1
+                
+            except Exception as _te:
+                logger.warning("  %s: migration failed — %s", _table, _te)
+        
+        _sq_conn.close()
+        _pg_conn.close()
+        
+        # Mark migration complete
+        with open(_migration_flag, 'w') as _f:
+            _f.write(f"Migrated {_migrated} tables, skipped {_skipped} at {datetime.now(timezone.utc).isoformat()}")
+        
+        logger.info("Data migration complete: %d tables migrated, %d skipped", _migrated, _skipped)
+        
+    except Exception as _me:
+        logger.warning("Data migration failed: %s", _me)
 
 
 if __name__ == "__main__":
