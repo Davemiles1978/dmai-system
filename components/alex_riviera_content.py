@@ -30,7 +30,7 @@ class AlexRivieraContentEngine:
             os.makedirs(self.data_path, exist_ok=True)
             conn = safe_open_kdb(self.db_path)
             conn.execute("""
-                CREATE TABLE IF NOT EXISTS insights (
+                CREATE TABLE IF NOT EXISTS ar_content (
                     id          SERIAL PRIMARY KEY,
                     title       TEXT,
                     description TEXT,
@@ -41,7 +41,7 @@ class AlexRivieraContentEngine:
                     created_at  TEXT DEFAULT (datetime('now'))
                 )
             """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_insights_created ON insights(created_at)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_ar_content_created ON ar_content(created_at)")
             conn.commit()
             conn.close()
         except Exception as e:
@@ -64,7 +64,7 @@ class AlexRivieraContentEngine:
             conn = safe_open_kdb(self.db_path)
             yesterday = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%d")
             rows = conn.execute(
-                "SELECT COALESCE(content, description, title, '') as content FROM insights WHERE created_at >= ? ORDER BY id DESC LIMIT 5",
+                "SELECT COALESCE(content, description, title, '') as content FROM ar_content WHERE created_at >= ? ORDER BY id DESC LIMIT 5",
                 (yesterday,)
             ).fetchall()
             conn.close()
@@ -73,7 +73,7 @@ class AlexRivieraContentEngine:
                 # Fall back to most recent insights regardless of date
                 conn = safe_open_kdb(self.db_path)
                 rows = conn.execute(
-                    "SELECT COALESCE(content, description, title, '') as content FROM insights ORDER BY id DESC LIMIT 3"
+                    "SELECT COALESCE(content, description, title, '') as content FROM ar_content ORDER BY id DESC LIMIT 3"
                 ).fetchall()
                 conn.close()
 
@@ -117,7 +117,7 @@ Tweet 1 must be a scroll-stopping hook. Include 1-2 relevant hashtags in the las
                 conn = safe_open_kdb(self.db_path)
                 try:
                     caps = conn.execute("SELECT COUNT(*) FROM capabilities").fetchone()[0]
-                    insights_count = conn.execute("SELECT COUNT(*) FROM insights").fetchone()[0]
+                    insights_count = conn.execute("SELECT COUNT(*) FROM ar_content").fetchone()[0]
                 except Exception:
                     pass
                 conn.close()

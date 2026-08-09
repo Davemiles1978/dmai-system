@@ -341,10 +341,13 @@ def _ensure_tables(conn: sqlite3.Connection) -> None:
     conn.execute("CREATE INDEX IF NOT EXISTS idx_vocab_word ON vocabulary(word)")
     conn.execute(
         "CREATE TABLE IF NOT EXISTS insights ("
-        " id TEXT PRIMARY KEY, insight_text TEXT, entity_type TEXT,"
-        " entities TEXT, relationship TEXT, confidence REAL,"
-        " source_topic TEXT, target_topic TEXT, source TEXT,"
-        " created_at TEXT)"
+        " id TEXT PRIMARY KEY, concept TEXT, insight_text TEXT, confidence REAL DEFAULT 0.5,"
+        " domain TEXT, source TEXT, created_at TIMESTAMPTZ DEFAULT NOW(),"
+        " content TEXT, description TEXT, title TEXT,"
+        " entity_type TEXT, entities TEXT, relationship TEXT,"
+        " source_topic TEXT, target_topic TEXT,"
+        " source_url TEXT, source_title TEXT, source_type TEXT,"
+        " occurrence_count INTEGER DEFAULT 1, last_used TIMESTAMPTZ)"
     )
     conn.execute(
         "CREATE TABLE IF NOT EXISTS learning_progress ("

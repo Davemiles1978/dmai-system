@@ -130,17 +130,23 @@ class SQLitePersistence:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS insights (
                 id TEXT PRIMARY KEY,
+                concept TEXT,
                 insight_text TEXT NOT NULL,
                 entity_type TEXT NOT NULL,
                 entities TEXT NOT NULL,           -- JSON array
                 relationship TEXT NOT NULL,
                 confidence REAL DEFAULT 0.5,
+                domain TEXT,
+                source TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                content TEXT,
+                description TEXT,
+                title TEXT,
                 source_topic TEXT NOT NULL,
                 target_topic TEXT NOT NULL,
                 source_url TEXT,
                 source_title TEXT,
                 source_type TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 occurrence_count INTEGER DEFAULT 1,
                 last_used TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -152,6 +158,7 @@ class SQLitePersistence:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS synapses (
                 id TEXT PRIMARY KEY,
+                concept TEXT,
                 from_insight TEXT NOT NULL,
                 to_insight TEXT NOT NULL,
                 relationship TEXT NOT NULL,
@@ -189,6 +196,7 @@ class SQLitePersistence:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS capabilities (
                 id TEXT PRIMARY KEY,
+                concept TEXT,
                 name TEXT NOT NULL,
                 type TEXT NOT NULL,               -- 'class', 'function', etc.
                 capability_type TEXT NOT NULL,    -- 'funding', 'replication', etc.
@@ -242,6 +250,7 @@ class SQLitePersistence:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS ai_systems (
                 id TEXT PRIMARY KEY,
+                concept TEXT,
                 name TEXT NOT NULL,
                 organization TEXT NOT NULL,
                 first_release_date TEXT,
@@ -256,6 +265,7 @@ class SQLitePersistence:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS system_versions (
                 id TEXT PRIMARY KEY,
+                concept TEXT,
                 system_id TEXT NOT NULL,
                 version_name TEXT NOT NULL,
                 release_date TEXT,
@@ -275,12 +285,19 @@ class SQLitePersistence:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS genealogy_predictions (
                 id TEXT PRIMARY KEY,
+                concept TEXT,
                 system_id TEXT NOT NULL,
                 predicted_version TEXT NOT NULL,
                 predicted_date TEXT,
                 predicted_capabilities TEXT,
                 predicted_architecture TEXT,
                 confidence REAL DEFAULT 0.5,
+                domain TEXT,
+                source TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                content TEXT,
+                description TEXT,
+                title TEXT,
                 status TEXT DEFAULT 'pending',
                 actual_version TEXT,
                 actual_date TEXT,
