@@ -628,7 +628,7 @@ def _ensure_kdb_schema(db_path: str) -> dict:
         for _alter in _CORE_SCHEMA_ALTERS:
             try:
                 conn.execute(_alter)
-            except _essq.OperationalError:
+            except Exception:
                 pass
 
         conn.commit()
