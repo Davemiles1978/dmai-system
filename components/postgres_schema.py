@@ -53,35 +53,56 @@ CREATE TABLE IF NOT EXISTS capabilities (
     args TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     integrated_at TIMESTAMPTZ DEFAULT NOW()
+    category TEXT,
+    proficiency DOUBLE PRECISION DEFAULT 0.0,
+    provenance TEXT,
+    judge_confidence DOUBLE PRECISION DEFAULT 0.5
+
 );
 
 CREATE TABLE IF NOT EXISTS insights (
-    id SERIAL PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     concept TEXT,
     insight_text TEXT,
     confidence DOUBLE PRECISION DEFAULT 0.5,
     domain TEXT,
     source TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
+    content TEXT,
+    description TEXT,
+    title TEXT,
+    entity_type TEXT,
+    entities TEXT,
+    relationship TEXT,
     source_topic TEXT,
     target_topic TEXT,
+    source_url TEXT,
+    source_title TEXT,
+    source_type TEXT,
     occurrence_count INTEGER DEFAULT 1,
-    last_used TIMESTAMPTZ,
-    neuron_level TEXT DEFAULT 'micro',
-    parent_macro_id TEXT,
-    provenance TEXT
+    last_used TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS idx_insights_concept ON insights(concept);
 CREATE INDEX IF NOT EXISTS idx_insights_domain ON insights(domain);
 CREATE INDEX IF NOT EXISTS idx_insights_created ON insights(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_insights_source_topic ON insights(source_topic);
-CREATE INDEX IF NOT EXISTS idx_insights_provenance ON insights(provenance);
-
 CREATE TABLE IF NOT EXISTS system_state (
     key TEXT PRIMARY KEY,
     value TEXT,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS stage_history (
+    id SERIAL PRIMARY KEY,
+    stage TEXT NOT NULL,
+    prev_stage TEXT,
+    insights INTEGER DEFAULT 0,
+    capabilities INTEGER DEFAULT 0,
+    vocab INTEGER DEFAULT 0,
+    avg_kpi DOUBLE PRECISION DEFAULT 0.0,
+    within_pct DOUBLE PRECISION DEFAULT 0.0,
+    recorded_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 
 -- Monetisation tables
 CREATE TABLE IF NOT EXISTS mon_wallets (
@@ -117,38 +138,23 @@ CREATE TABLE IF NOT EXISTS mon_tips (
     selection TEXT,
     bookmaker TEXT,
     decimal_odds DOUBLE PRECISION,
-    model_probability DOUBLE PRECISION,
-    confidence DOUBLE PRECISION,
-    expected_value DOUBLE PRECISION,
-    kelly_fraction DOUBLE PRECISION,
-    recommended_stake DOUBLE PRECISION,
-    currency TEXT NOT NULL DEFAULT 'GBP',
-    rationale TEXT,
-    prediction_id TEXT,
     status TEXT DEFAULT 'pending',
-    placed_at DOUBLE PRECISION,
-    settled_at DOUBLE PRECISION,
     actual_stake DOUBLE PRECISION DEFAULT 0,
     profit_loss DOUBLE PRECISION DEFAULT 0,
     notes TEXT,
-    created_at DOUBLE PRECISION NOT NULL DEFAULT 0
-);
-CREATE INDEX IF NOT EXISTS idx_mon_tips_status ON mon_tips(status, created_at DESC);
-
-CREATE TABLE IF NOT EXISTS mon_tracking_picks (
-    id TEXT PRIMARY KEY,
-    event_name TEXT NOT NULL,
-    market TEXT,
-    selection TEXT NOT NULL,
-    decimal_odds DOUBLE PRECISION,
-    model_probability DOUBLE PRECISION,
-    confidence DOUBLE PRECISION,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    placed_at TIMESTAMPTZ,
+    settled_at TIMESTAMPTZ,
+    recommended_stake DOUBLE PRECISION,
+    kelly_fraction DOUBLE PRECISION,
     expected_value DOUBLE PRECISION,
-    rationale TEXT,
+    confidence DOUBLE PRECISION,
+    model_probability DOUBLE PRECISION,
     prediction_id TEXT,
-    outcome TEXT,
-    created_at DOUBLE PRECISION NOT NULL
+    currency TEXT DEFAULT 'GBP',
+    rationale TEXT
 );
+CREATE INDEX IF NOT EXISTS idx_mon_tips_status ON mon_tips(status);
 
 CREATE TABLE IF NOT EXISTS mon_user_bets (
     id SERIAL PRIMARY KEY,
@@ -331,10 +337,13 @@ CREATE INDEX IF NOT EXISTS idx_vocabulary_word ON vocabulary(word);
 CREATE INDEX IF NOT EXISTS idx_vocabulary_domain ON vocabulary(domain);
 
 CREATE TABLE IF NOT EXISTS encyclopaedia (
-    id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    content TEXT,
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    summary TEXT,
+    categories TEXT,
+    url TEXT,
     domain TEXT,
+    word_count INTEGER DEFAULT 0,
     source TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -342,10 +351,12 @@ CREATE TABLE IF NOT EXISTS encyclopaedia (
 CREATE TABLE IF NOT EXISTS sources (
     id SERIAL PRIMARY KEY,
     url TEXT NOT NULL,
-    source_type TEXT,
-    description TEXT,
-    domain TEXT,
-    priority DOUBLE PRECISION DEFAULT 0.5
+    kind TEXT,
+    title TEXT,
+    category TEXT,
+    trust DOUBLE PRECISION DEFAULT 0.5,
+    added_at TIMESTAMPTZ DEFAULT NOW(),
+    last_seen TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS topics (
