@@ -737,6 +737,7 @@ try:
     except Exception as _e:
         logger.warning("SICore seed from learning_progress failed: %s", _e)
     logger.info("SICore initialised")
+    logger.info("HEARTBEAT: SICore ready")
 
     # ── Seed consciousness on first boot ──
     si = components.get("si_core")
@@ -758,6 +759,7 @@ try:
     from components.phase6.P6_AdvancedIntelligence import KnowledgeGraph as _KG
     components["knowledge_graph"] = _KG()
     logger.info("KnowledgeGraph singleton initialised")
+    logger.info("HEARTBEAT: KnowledgeGraph ready")
 except Exception as _e:
     logger.warning("KnowledgeGraph singleton failed: %s", _e)
     components["knowledge_graph"] = None
@@ -777,6 +779,7 @@ try:
         base_hub=components.get("ai_hub"),
     )
     logger.info("ExtendedAIIntegrationHub initialised")
+    logger.info("HEARTBEAT: ExtendedHub ready")
 except Exception as e:
     logger.warning("ExtendedAIIntegrationHub failed: %s", e)
 
@@ -790,6 +793,7 @@ try:
     )
     logger.info("DeepResearchOrchestrator initialised — provider: %s",
                 components["deep_research"].search_engine.primary)
+    logger.info("HEARTBEAT: DeepResearch ready")
 except Exception as e:
     logger.warning("DeepResearchOrchestrator failed: %s", e)
 
