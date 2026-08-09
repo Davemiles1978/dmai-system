@@ -1,0 +1,28 @@
+{
+  "valence_events": [],
+  "current_valence": 0.0,
+  "valence_magnitude": 0.0,
+  "drive_coherence": 0.0,
+  "intentionality_score": 0.0,
+  "positive_ratio": 0.0,
+  "negative_ratio": 0.0,
+  "last_updated": "2026-08-08T23:43:28.227344+00:00",
+  "history": [
+    {
+      "timestamp": "2026-08-08T23:43:27.132469+00:00",
+      "current_valence": 0.0,
+      "magnitude": 0.0,
+      "coherence": 0.0,
+      "intentionality": 0.0,
+      "events_collected": 0
+    },
+    {
+      "timestamp": "2026-08-08T23:43:28.227341+00:00",
+      "current_valence": 0.0,
+      "magnitude": 0.0,
+      "coherence": 0.0,
+      "intentionality": 0.0,
+      "events_collected": 0
+    }
+  ]
+}

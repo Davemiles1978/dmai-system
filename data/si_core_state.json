@@ -1,7 +1,7 @@
 {
-  "skill_acquisition_rate": 0.36363636363636365,
-  "transfer_learning_rate": 0.25,
-  "zero_shot_success_count": 0.03587,
+  "skill_acquisition_rate": 0.03088,
+  "transfer_learning_rate": 0.0,
+  "zero_shot_success_count": 0.035886666666666664,
   "agentic_capability_score": 0.0772,
   "recursive_self_improvement_rate": 0.0,
   "sample_efficiency_trend": 0.0,
@@ -10,6 +10,6 @@
   "task_completion_rate": 0.0,
   "error_rate": 0.0,
   "response_quality": 0.0,
-  "consciousness": 0.0,
-  "last_updated": 1784203929.531105
+  "consciousness": 0.1,
+  "last_updated": 1786232608.2275589
 }

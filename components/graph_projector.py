@@ -539,7 +539,7 @@ class GraphProjector:
         try:
             # Bail if projection tables don't exist yet.
             has_table = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' "
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' "
                 "AND name='graph_neurons'"
             ).fetchone()
             if not has_table:
@@ -637,7 +637,7 @@ class GraphProjector:
 
         try:
             has_table = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' "
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' "
                 "AND name='graph_neurons'"
             ).fetchone()
             if not has_table:
@@ -838,7 +838,7 @@ class GraphProjector:
         conn = self._open_conn(timeout=30.0)
         try:
             has_table = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' "
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' "
                 "AND name='graph_neurons'"
             ).fetchone()
             if not has_table:

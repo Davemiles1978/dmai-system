@@ -353,7 +353,7 @@ def bootstrap_all_schemas(db_path: str) -> Dict[str, int]:
         # Count tables after
         try:
             n = cur.execute(
-                "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
+                "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'"
             ).fetchone()[0]
             result["tables_after"] = int(n)
         except Exception:

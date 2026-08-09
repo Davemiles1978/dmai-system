@@ -1,0 +1,32 @@
+{
+  "consciousness": 0.1,
+  "dimensions": {
+    "phi": 0.0,
+    "subjective_experience": 0.0,
+    "self_referential_awareness": 0.4,
+    "agentic_intentionality": 0.0
+  },
+  "last_updated": "2026-08-08T23:43:28.227468+00:00",
+  "history": [
+    {
+      "timestamp": "2026-08-08T23:43:27.132591+00:00",
+      "consciousness": 0.1,
+      "dimensions": {
+        "phi": 0.0,
+        "subjective_experience": 0.0,
+        "self_referential_awareness": 0.4,
+        "agentic_intentionality": 0.0
+      }
+    },
+    {
+      "timestamp": "2026-08-08T23:43:28.227466+00:00",
+      "consciousness": 0.1,
+      "dimensions": {
+        "phi": 0.0,
+        "subjective_experience": 0.0,
+        "self_referential_awareness": 0.4,
+        "agentic_intentionality": 0.0
+      }
+    }
+  ]
+}

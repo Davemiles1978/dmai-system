@@ -1,0 +1,23 @@
+{
+  "salience_map": {},
+  "focus_coherence": 0.0,
+  "phi_contribution": 0.0,
+  "attention_span": 0,
+  "last_updated": "2026-08-08T23:43:27.133152+00:00",
+  "history": [
+    {
+      "timestamp": "2026-08-08T23:43:27.131560+00:00",
+      "coherence": 0.0,
+      "phi": 0.0,
+      "breadth": 0,
+      "domains": []
+    },
+    {
+      "timestamp": "2026-08-08T23:43:27.133148+00:00",
+      "coherence": 0.0,
+      "phi": 0.0,
+      "breadth": 0,
+      "domains": []
+    }
+  ]
+}

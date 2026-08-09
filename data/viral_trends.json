@@ -1,0 +1,20 @@
+{
+  "trends": [
+    {
+      "topic": "AI Automation",
+      "engagement": 0.9,
+      "platform": "YouTube"
+    },
+    {
+      "topic": "Self\u2011Improvement",
+      "engagement": 0.8,
+      "platform": "TikTok"
+    },
+    {
+      "topic": "Future Technology",
+      "engagement": 0.7,
+      "platform": "Twitter"
+    }
+  ],
+  "updated_at": "2026-08-08T19:43:26.686527"
+}

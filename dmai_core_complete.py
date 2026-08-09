@@ -5556,7 +5556,7 @@ def api_admin_list_sqlite_sources():
             conn = _sq.connect(f"file:{p}?mode=ro", uri=True)
             try:
                 tables = [r[0] for r in conn.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+                    "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY name"
                 ).fetchall()]
                 entry["tables"] = tables
                 if "admin_api_keys" in tables:
@@ -9114,7 +9114,7 @@ def api_admin_db_salvage():
         schema_rows = []
         try:
             schema_rows = list(src.execute(
-                "SELECT type, name, sql FROM sqlite_master "
+                "SELECT table_type, table_name, NULL as sql FROM information_schema.tables WHERE table_schema = 'public' "
                 "WHERE type IN ('table','index','trigger','view') AND sql IS NOT NULL"
             ))
         except Exception as e:
@@ -14968,7 +14968,7 @@ def api_admin_db_bootstrap():
             );
         """)
         _c.commit()
-        cur = _c.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+        cur = _c.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY name")
         tables = [r[0] for r in cur.fetchall()]
         _c.close()
         return jsonify({"status": "ok", "db": _p, "tables": tables})

@@ -456,7 +456,7 @@ class AutonomousTrader:
             return False
         try:
             row = raw.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='at_state'"
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND name='at_state'"
             ).fetchone()
             if not row:
                 return False
