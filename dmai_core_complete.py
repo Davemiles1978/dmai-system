@@ -665,62 +665,64 @@ _kn_db = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "dmai_knowledge.db")
 if os.environ.get("DATABASE_URL"):
     _kn_schema_result = {"core_ok": True, "bootstrap": {"skipped": "postgresql_active"}, "error": None}
     logger.info("Schema bootstrap skipped — PostgreSQL active, components create tables on demand")
-    # Migrate data from SQLite to PostgreSQL (runs once)
-    try:
-        import sqlite3 as _sq_mig
-        import psycopg2 as _pg_mig
-        _mig_sqlite_path = os.path.join(DATA_PATH, "dmai_knowledge.db")
-        _mig_flag = os.path.join(DATA_PATH, ".migration_complete")
-        if os.path.exists(_mig_sqlite_path) and not os.path.exists(_mig_flag):
-            _mig_dsn = os.environ.get("DATABASE_URL", "")
-            if _mig_dsn:
+    # Migrate data from SQLite to PostgreSQL in background (non-blocking)
+    _mig_sqlite_path = os.path.join(DATA_PATH, "dmai_knowledge.db")
+    _mig_flag = os.path.join(DATA_PATH, ".migration_complete")
+    if os.path.exists(_mig_sqlite_path) and not os.path.exists(_mig_flag) and os.environ.get("DATABASE_URL"):
+        import threading as _th_mig
+        def _bg_migrate():
+            try:
+                import sqlite3 as _sq_m, psycopg2 as _pg_m
+                _mig_dsn = os.environ["DATABASE_URL"]
                 if _mig_dsn.startswith("postgres://"):
                     _mig_dsn = "postgresql://" + _mig_dsn[len("postgres://"):]
-                logger.info("Starting SQLite -> PostgreSQL data migration...")
-                _sq_conn = _sq_mig.connect(_mig_sqlite_path)
-                _pg_conn = _pg_mig.connect(_mig_dsn)
+                logger.info("Background migration: starting SQLite -> PostgreSQL...")
+                _sq_conn = _sq_m.connect(_mig_sqlite_path)
+                _pg_conn = _pg_m.connect(_mig_dsn)
                 _pg_conn.autocommit = True
                 _tables = ["capabilities", "insights", "system_state", "syllabus_content",
-                          "vocabulary", "encyclopaedia", "graph_neurons", "graph_synapses",
-                          "mon_wallets", "mon_tips", "at_state", "at_trades", "at_ticks",
-                          "work_review_queue", "skill_assessments"]
+                          "vocabulary", "encyclopaedia", "graph_neurons", "graph_synapses"]
                 _migrated = 0
                 for _table in _tables:
                     try:
                         _pgc = _pg_conn.cursor()
                         _pgc.execute(f"SELECT COUNT(*) FROM {_table}")
                         if _pgc.fetchone()[0] > 0:
-                            _pgc.close()
-                            continue
+                            _pgc.close(); continue
                         _pgc.close()
                         _sqc = _sq_conn.cursor()
                         _sqc.execute(f"SELECT * FROM {_table}")
                         _rows = _sqc.fetchall()
                         _cols = [d[0] for d in _sqc.description]
                         _sqc.close()
-                        if not _rows:
-                            continue
+                        if not _rows: continue
                         _ph = ', '.join(['%s'] * len(_cols))
                         _cl = ', '.join(f'"{c}"' for c in _cols)
                         _sql = f'INSERT INTO {_table} ({_cl}) VALUES ({_ph}) ON CONFLICT DO NOTHING'
                         _pgc = _pg_conn.cursor()
+                        _batch = []
                         for _row in _rows:
-                            try:
-                                _pgc.execute(_sql, _row)
-                            except Exception:
-                                pass
+                            _batch.append(_row)
+                            if len(_batch) >= 1000:
+                                for _r in _batch:
+                                    try: _pgc.execute(_sql, _r)
+                                    except: pass
+                                _batch = []
+                        for _r in _batch:
+                            try: _pgc.execute(_sql, _r)
+                            except: pass
                         _pgc.close()
-                        logger.info("  Migrated %s: %d rows", _table, len(_rows))
+                        logger.info("  Background migration: %s — %d rows", _table, len(_rows))
                         _migrated += 1
                     except Exception as _te:
-                        logger.debug("  %s migration skipped: %s", _table, _te)
-                _sq_conn.close()
-                _pg_conn.close()
-                with open(_mig_flag, 'w') as _f:
-                    _f.write(f"migrated {_migrated} tables")
-                logger.info("Data migration complete: %d tables", _migrated)
-    except Exception as _mig_err:
-        logger.warning("Data migration error: %s", _mig_err)
+                        logger.debug("  %s migration: %s", _table, _te)
+                _sq_conn.close(); _pg_conn.close()
+                with open(_mig_flag, 'w') as _f: _f.write(f"migrated {_migrated} tables")
+                logger.info("Background migration complete: %d tables", _migrated)
+            except Exception as _e:
+                logger.warning("Background migration error: %s", _e)
+        _th_mig.Thread(target=_bg_migrate, daemon=True, name="db-migration").start()
+        logger.info("Background data migration started")
     # Migrate data from SQLite to PostgreSQL (runs once)
     try:
         _migrate_sqlite_to_postgres()
