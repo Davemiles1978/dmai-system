@@ -873,7 +873,10 @@ try:
     from components.integration.auto_api_activator import AutoAPIActivator
     # PR O — hydrate DB-stored API keys into env BEFORE activator constructs, so
     # first validation pass sees them.
-    _bootstrap_api_key_hydration()
+    try:
+        _bootstrap_api_key_hydration()
+    except Exception as _hydrate_err:
+        logger.warning("API key hydration failed (non-fatal): %s", _hydrate_err)
     _hub_ref = components.get("extended_hub") or components.get("ai_hub")
     components["api_activator"] = AutoAPIActivator(
         ai_hub=_hub_ref,
