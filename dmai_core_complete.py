@@ -249,8 +249,8 @@ def _checkpoint_before_integrity(db_path):
     try:
         conn = sqlite3.connect(db_path, timeout=30)
         try:
-            # result is (busy, log_frames, checkpointed_frames); busy=0 => full
             conn.commit()
+            row = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
         finally:
             conn.close()
         ok = row is not None and row[0] == 0
