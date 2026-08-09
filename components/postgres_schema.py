@@ -553,21 +553,34 @@ CREATE TABLE IF NOT EXISTS knowledge_graph (
 );
 
 CREATE TABLE IF NOT EXISTS graph_neurons (
-    id SERIAL PRIMARY KEY,
-    label TEXT,
-    neuron_type TEXT,
-    data_json TEXT,
+    id TEXT PRIMARY KEY,
+    label TEXT NOT NULL,
+    layer TEXT NOT NULL,
+    cluster TEXT,
+    capability_type TEXT,
+    runtime_mode TEXT,
+    source_repo TEXT,
+    activation DOUBLE PRECISION DEFAULT 0.5,
+    metadata TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_gn_layer ON graph_neurons(layer);
+CREATE INDEX IF NOT EXISTS idx_gn_captype ON graph_neurons(capability_type);
+CREATE INDEX IF NOT EXISTS idx_gn_cluster ON graph_neurons(cluster);
 
 CREATE TABLE IF NOT EXISTS graph_synapses (
     id SERIAL PRIMARY KEY,
-    source_id INTEGER,
-    target_id INTEGER,
+    source TEXT NOT NULL,
+    target TEXT NOT NULL,
+    edge_type TEXT NOT NULL,
     weight DOUBLE PRECISION DEFAULT 1.0,
-    synapse_type TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    relationship TEXT,
+    metadata TEXT,
+    UNIQUE(source, target, edge_type)
 );
+CREATE INDEX IF NOT EXISTS idx_gs_source ON graph_synapses(source);
+CREATE INDEX IF NOT EXISTS idx_gs_target ON graph_synapses(target);
+CREATE INDEX IF NOT EXISTS idx_gs_type ON graph_synapses(edge_type);
 
 CREATE TABLE IF NOT EXISTS synapses (
     id SERIAL PRIMARY KEY,
