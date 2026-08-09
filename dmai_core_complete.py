@@ -596,11 +596,7 @@ def _ensure_kdb_schema(db_path: str) -> dict:
 
     conn = None
     try:
-        conn = _essq.connect(db_path, timeout=10)
-        # R4/Bug 1: WAL must be set BEFORE anything else touches the file. A
-        # rollback-journal open racing a sibling WAL open is the root cause of
-        # "database disk image is malformed" (see components/db.py docstring).
-        # Fail-closed on this root cause: if WAL can't be set, do not proceed.
+        conn = safe_open_kdb(db_path, timeout=10)
         try:
             conn.commit()
         except Exception as _wale:
@@ -612,7 +608,15 @@ def _ensure_kdb_schema(db_path: str) -> dict:
                 pass
             return result
 
-        conn.executescript(_CORE_SCHEMA_SQL)
+        # Execute schema through safe_open_kdb (routes to PostgreSQL when available)
+        for _stmt in _CORE_SCHEMA_SQL.split(';'):
+            _stmt = _stmt.strip()
+            if _stmt:
+                try:
+                    conn.execute(_stmt)
+                except Exception:
+                    pass
+        conn.commit()
 
         # Seed at_state singleton row if absent.
         try:
