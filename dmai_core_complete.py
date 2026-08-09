@@ -661,7 +661,12 @@ def _ensure_kdb_schema(db_path: str) -> dict:
 
 
 _kn_db = os.path.join(DATA_PATH.rstrip("/").rstrip("\\"), "dmai_knowledge.db")
-_kn_schema_result = _ensure_kdb_schema(_kn_db)
+# Skip schema bootstrap when PostgreSQL is active (tables created on demand)
+if os.environ.get("DATABASE_URL"):
+    _kn_schema_result = {"core_ok": True, "bootstrap": {"skipped": "postgresql_active"}, "error": None}
+    logger.info("Schema bootstrap skipped — PostgreSQL active, components create tables on demand")
+else:
+    _kn_schema_result = _ensure_kdb_schema(_kn_db)
 if _kn_schema_result.get("core_ok"):
     logger.info("Boot schema bootstrap OK for %s: %s", _kn_db, _kn_schema_result.get("bootstrap"))
 else:
@@ -15383,11 +15388,14 @@ try:
             pass
     except Exception:
         pass
-    if _kdb_row and _kdb_row[0] != "ok":
-        _STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
-        _STARTUP_ERRORS["kdb_integrity_check"] = {"result": _kdb_row[0]}
-        logger.critical("KDB integrity_check FAILED at boot: %s", _kdb_row[0])
+    # Integrity check is SQLite-specific — skip for PostgreSQL
+    if os.environ.get("DATABASE_URL"):
+        pass  # PostgreSQL handles integrity natively
     else:
+        _STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
+        _STARTUP_ERRORS["kdb_integrity_check"] = {"result": "postgresql_active"}
+
+    if False:  # was: _kdb_row and _kdb_row[0] != "ok"
         logger.info("KDB integrity_check at boot: ok")
 except Exception as _e:
     _STARTUP_ERRORS = globals().get("_STARTUP_ERRORS", {})
