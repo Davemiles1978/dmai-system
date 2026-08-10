@@ -11,12 +11,12 @@ workers = 1
 # Phase 12: 16 threads (was 8) for headroom. The hub-wide semaphore in
 # AIIntegrationHub caps concurrent provider calls at 4 (AI_HUB_MAX_CONCURRENT),
 # so HTTP requests always have 12+ threads available even under provider load.
-threads = int(os.environ.get('GUNICORN_THREADS', '16'))
+threads = int(os.environ.get("GUNICORN_THREADS", "24"))
 worker_class = "gthread"
 timeout = 300
 graceful_timeout = 60
 keepalive = 5
-preload_app = True
+preload_app = False
 
 # Never recycle workers — would kill all background threads
 max_requests = 0
