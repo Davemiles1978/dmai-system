@@ -31,7 +31,7 @@ ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS args TEXT;
 ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS integrated_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS provenance TEXT;
-ALTER TABLE stage_history ADD COLUMN IF NOT EXISTS required_for_system INTEGER DEFAULT 0;
+ALTER TABLE stage_history ADD COLUMN IF NOT EXISTS required_for_system BOOLEAN DEFAULT false;
 ALTER TABLE mon_wallets ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'GBP';
 ALTER TABLE mon_wallets ADD COLUMN IF NOT EXISTS updated_at DOUBLE PRECISION NOT NULL DEFAULT 0;
 ALTER TABLE system_state ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
@@ -388,6 +388,7 @@ CREATE TABLE IF NOT EXISTS learning_outcomes (
     stage TEXT,
     outcome TEXT,
     passed INTEGER DEFAULT 0,
+    time_spent DOUBLE PRECISION DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -929,6 +930,7 @@ CREATE TABLE IF NOT EXISTS trades_ledger (
     entry_price DOUBLE PRECISION,
     exit_price DOUBLE PRECISION,
     profit_loss DOUBLE PRECISION,
+    status TEXT DEFAULT open,
     closed_at TIMESTAMPTZ
 );
 
@@ -1027,10 +1029,20 @@ CREATE TABLE IF NOT EXISTS tasks (
 -- Materialisation log
 CREATE TABLE IF NOT EXISTS materialisation_log (
     id SERIAL PRIMARY KEY,
-    entity_type TEXT,
-    entity_count INTEGER,
-    ts TIMESTAMPTZ DEFAULT NOW()
+    capability_id TEXT,
+    concept TEXT,
+    slug TEXT,
+    outcome TEXT,
+    model_used TEXT,
+    reasons TEXT,
+    judge_confidence DOUBLE PRECISION,
+    duration_sec DOUBLE PRECISION,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_matlog_cap ON materialisation_log(capability_id);
+CREATE INDEX IF NOT EXISTS idx_matlog_outcome ON materialisation_log(outcome);
+CREATE INDEX IF NOT EXISTS idx_matlog_created ON materialisation_log(created_at);
+
 
 
 

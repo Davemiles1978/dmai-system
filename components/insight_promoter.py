@@ -112,13 +112,15 @@ def _row_to_insight_params(obj: Dict[str, Any]) -> Optional[tuple]:
     insight_text = str(insight_text)[:5000]
     domain       = str(domain)[:200]
     source       = str(source)[:500]
-    return (concept, insight_text, confidence, domain, source, created_at)
+    import hashlib
+    row_id = hashlib.md5((concept + insight_text).encode()).hexdigest()[:16]
+    return (row_id, concept, insight_text, confidence, domain, source, created_at)
 
 
 INSERT_SQL = (
-    "INSERT INTO insights (concept, insight_text, confidence, domain, source, "
+    "INSERT INTO insights (id, concept, insight_text, confidence, domain, source,"
     "                      created_at) "
-    "VALUES (?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))"
+    "VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))"
 )
 
 
