@@ -16,7 +16,7 @@ worker_class = "gthread"
 timeout = 300
 graceful_timeout = 60
 keepalive = 5
-preload_app = False
+preload_app = True
 
 # Never recycle workers — would kill all background threads
 max_requests = 0
