@@ -540,7 +540,7 @@ class GraphProjector:
             # Bail if projection tables don't exist yet.
             has_table = conn.execute(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' "
-                "AND name='graph_neurons'"
+                "AND table_name='graph_neurons'"
             ).fetchone()
             if not has_table:
                 return {"neurons": [], "synapses": [], "total_neurons": 0,
@@ -638,7 +638,7 @@ class GraphProjector:
         try:
             has_table = conn.execute(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' "
-                "AND name='graph_neurons'"
+                "AND table_name='graph_neurons'"
             ).fetchone()
             if not has_table:
                 return {"neurons": [], "synapses": [], "total_neurons": 0,
@@ -839,7 +839,7 @@ class GraphProjector:
         try:
             has_table = conn.execute(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' "
-                "AND name='graph_neurons'"
+                "AND table_name='graph_neurons'"
             ).fetchone()
             if not has_table:
                 return {"ok": True, "built": False,
