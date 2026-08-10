@@ -8,7 +8,7 @@ services:
     # would override the config file and reintroduce worker recycling.
     startCommand: gunicorn dmai_core_complete:app --config gunicorn_config.py
     healthCheckPath: /health
-    healthCheckGracePeriodSeconds: 90
+    healthCheckGracePeriodSeconds: 180
     # Persistent disk so dmai_knowledge.db survives deploys/restarts.
     # Was on ephemeral overlayfs which (a) wiped DB on every deploy and
     # (b) has unsafe fsync semantics for SQLite WAL. See

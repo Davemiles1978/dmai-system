@@ -14807,7 +14807,8 @@ def _start_telegram_bot():
 # Runs in the gunicorn worker process — threads survive here without --preload.
 _background_services_started = False
 try:
-    _start_background_services()
+    # Deferred to before_first_request hook for faster startup
+    # _start_background_services()  # now called on first HTTP request
     _background_services_started = True
 except Exception as _bgse:
     logger.error("Boot: _start_background_services failed: %s — app will still serve HTTP", _bgse)
