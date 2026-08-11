@@ -120,7 +120,7 @@ def _row_to_insight_params(obj: Dict[str, Any]) -> Optional[tuple]:
 INSERT_SQL = (
     "INSERT INTO insights (id, concept, insight_text, confidence, domain, source,"
     "                      created_at) "
-    "VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))"
+    "VALUES (?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP)) ON CONFLICT (id) DO NOTHING"
 )
 
 

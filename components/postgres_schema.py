@@ -936,7 +936,7 @@ CREATE TABLE IF NOT EXISTS trades_ledger (
     entry_price DOUBLE PRECISION,
     exit_price DOUBLE PRECISION,
     profit_loss DOUBLE PRECISION,
-    status TEXT DEFAULT open,
+    status TEXT DEFAULT 'open',
     closed_at TIMESTAMPTZ
 );
 
