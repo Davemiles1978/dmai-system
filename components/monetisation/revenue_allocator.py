@@ -71,7 +71,7 @@ class RevenueAllocator:
 
     def _conn(self):
         c = safe_open_kdb(self.db_path, timeout=30.0)
-        c.row_factory = sqlite3.Row
+        c.row_factory = dict
         return c
 
     def _init_schema(self):
@@ -133,7 +133,7 @@ class RevenueAllocator:
             new_bal = self._apply_delta_locked(c, wallet, -amount, event_id, reason, ts)
         return {"wallet": wallet, "debit": amount, "balance_after": new_bal, "ts": ts}
 
-    def _apply_delta_locked(self, c: sqlite3.Connection, wallet: str, delta: float,
+    def _apply_delta_locked(self, c: object, wallet: str, delta: float,
                             event_id: Optional[str], reason: str, ts: float) -> float:
         row = c.execute("SELECT balance FROM mon_wallets WHERE name=?", (wallet,)).fetchone()
         cur = float(row["balance"]) if row else 0.0
@@ -152,7 +152,7 @@ class RevenueAllocator:
             with self._conn() as c:
                 row = c.execute("SELECT balance FROM mon_wallets WHERE name=?", (wallet,)).fetchone()
             return float(row["balance"]) if row else 0.0
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "no such table" in str(e).lower():
                 logger.warning("mon_wallets missing — re-creating schema")
                 self._init_schema()
@@ -166,7 +166,7 @@ class RevenueAllocator:
             with self._conn() as c:
                 rows = c.execute("SELECT name, balance, currency, updated_at FROM mon_wallets").fetchall()
             return [dict(r) for r in rows]
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "no such table" in str(e).lower():
                 logger.warning("mon_wallets missing — re-creating schema")
                 self._init_schema()

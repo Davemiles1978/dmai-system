@@ -72,9 +72,9 @@ class SlackNotifier:
         self._init_db()
 
     # ── DB ────────────────────────────────────────────────────────────────────
-    def _conn(self) -> sqlite3.Connection:
+    def _conn(self) -> object:
         c = safe_open_kdb(self.db_path, timeout=30)
-        c.row_factory = sqlite3.Row
+        c.row_factory = dict
         return c
 
     def _init_db(self) -> None:

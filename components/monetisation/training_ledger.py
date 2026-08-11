@@ -168,7 +168,7 @@ def record_paper_tip(
             )
             c.commit()
         return tid
-    except sqlite3.IntegrityError:
+    except Exception:
         # Dedup constraint hit — already recorded today. That's fine.
         return None
     except Exception as e:
