@@ -680,12 +680,16 @@ CREATE TABLE IF NOT EXISTS migration_log (
 
 -- Funding
 CREATE TABLE IF NOT EXISTS funding_state (
-    id SERIAL PRIMARY KEY,
-    revenue_avenues TEXT,
-    learned_concepts TEXT,
-    performance_data TEXT,
+    id TEXT PRIMARY KEY DEFAULT 'core',
+    completed_avenues TEXT DEFAULT '[]',
+    concepts_learned INTEGER DEFAULT 0,
+    concepts_total INTEGER DEFAULT 0,
+    learning_active INTEGER DEFAULT 0,
+    training_complete INTEGER DEFAULT 0,
+    progress REAL DEFAULT 0,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
 
 CREATE TABLE IF NOT EXISTS funding_avenues (
     id SERIAL PRIMARY KEY,

@@ -220,7 +220,7 @@ class BettingAdvisor:
         idempotent: it only adds columns that don't already exist.
         """
         try:
-            existing = {row[1] for row in []}
+            existing = {row[1] for row in c.execute("SELECT * FROM mon_tips LIMIT 0").description or []}
         except Exception:
             # Table doesn't exist yet — the CREATE TABLE from _SCHEMA just
             # ran, so this is impossible in normal flow. Bail quietly.
