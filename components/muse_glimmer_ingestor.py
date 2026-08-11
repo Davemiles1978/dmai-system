@@ -129,32 +129,19 @@ class MuseGlimmerIngestor:
         return []
 
     def list_bucket_files(self) -> List[Dict]:
-        """List all files in the HuggingFace bucket."""
-        logger.info(f"Listing bucket contents: {HF_BUCKET}")
-        try:
-            resp = requests.get(HF_API, timeout=30)
-            resp.raise_for_status()
-            data = resp.json()
-            # The bucket API may return different structures
-            if isinstance(data, list):
-                return data
-            elif isinstance(data, dict):
-                # Could be a list under 'files' or 'siblings' key
-                for key in ["files", "siblings", "children"]:
-                    if key in data:
-                        return data[key]
-                return [data]
-            return []
-        except Exception as e:
-            logger.warning(f"Bucket list failed: {e}")
-            # Try direct file listing via resolved URL
-            try:
-                resp = requests.get(f"{HF_BUCKET}/resolve/main/", timeout=30)
-                if resp.status_code == 200:
-                    return self._parse_html_listing(resp.text)
-            except Exception:
-                pass
-            return []
+        """List files in the Muse-Glimmer-30B bucket.
+        
+        Uses the known file manifest for this specific bucket (13 files, 59.6 GB).
+        Skips the 59GB of safetensors weight files — DMAI only needs
+        architecture, config, tokenizer design, and documentation (11 small files).
+        """
+        logger.info("Muse-Glimmer-30B: Using known file manifest (11 files, skipping 59GB weights)")
+        files = []
+        for filename in self._MUSE_PRIORITY_FILES:
+            if isinstance(filename, str) and "." in filename:
+                files.append({"rfilename": filename, "size": 0})
+        logger.info(f"Muse-Glimmer-30B: Will ingest {len(files)} small config/code/doc files")
+        return files
 
     def _parse_html_listing(self, html: str) -> List[Dict]:
         """Fallback: parse HTML directory listing from HF."""
