@@ -313,16 +313,27 @@ class StageProgressionTracker:
         self.state: Dict = self._load_state()
 
     def _load_state(self) -> Dict:
-        default_state = {d["domain"]: {"stage": "Baby", "mastery": 0.0, "attempts": 0}
-                         for d in FULL_CURRICULUM}
+        default_state = {
+            d["domain"]: {
+                "stage": "Baby",
+                "mastery": 0.0,
+                "attempts": 0,
+                "exams_passed": 0,
+                "current_stage_passes": 0,
+            }
+            for d in FULL_CURRICULUM
+        }
         if not self.state_file.exists():
             return default_state
         try:
             text = self.state_file.read_text().strip()
             if not text:
-                # Empty file — treat as fresh state.
                 return default_state
-            return json.loads(text)
+            loaded = json.loads(text)
+            for domain, rec in loaded.items():
+                rec.setdefault("exams_passed", 0)
+                rec.setdefault("current_stage_passes", 0)
+            return loaded
         except (json.JSONDecodeError, ValueError) as e:
             logger.warning(
                 f"Training state at {self.state_file} is corrupt ({e}); "
@@ -342,20 +353,35 @@ class StageProgressionTracker:
     def get_stage(self, domain: str) -> str:
         return self.state.get(domain, {}).get("stage", "Baby")
 
-    def update_mastery(self, domain: str, score: float) -> bool:
-        """Returns True if stage was advanced."""
-        rec = self.state.setdefault(domain, {"stage": "Baby", "mastery": 0.0, "attempts": 0})
+    def update_mastery(self, domain: str, score: float, passed: bool = False) -> bool:
+        rec = self.state.setdefault(
+            domain,
+            {"stage": "Baby", "mastery": 0.0, "attempts": 0,
+             "exams_passed": 0, "current_stage_passes": 0},
+        )
         rec["attempts"] += 1
-        # Running average
         rec["mastery"] = rec["mastery"] * 0.7 + score * 0.3
+
+        if passed:
+            rec["exams_passed"] = rec.get("exams_passed", 0) + 1
+            rec["current_stage_passes"] = rec.get("current_stage_passes", 0) + 1
+
         current_stage = rec["stage"]
         gate = STAGE_MASTERY_GATE[current_stage]
-        if rec["mastery"] >= gate and STAGES.index(current_stage) < len(STAGES) - 1:
+        current_stage_passes = rec.get("current_stage_passes", 0)
+
+        if (rec["mastery"] >= gate
+                and current_stage_passes >= 1
+                and STAGES.index(current_stage) < len(STAGES) - 1):
             rec["stage"] = STAGES[STAGES.index(current_stage) + 1]
-            logger.info(f"[STAGE UP] {domain}: {current_stage} → {rec['stage']}")
+            rec["current_stage_passes"] = 0
+            logger.info(
+                "[STAGE UP] %s: %s -> %s (mastery=%.3f, exams_passed=%d)",
+                domain, current_stage, rec["stage"],
+                rec["mastery"], rec.get("exams_passed", 0),
+            )
             return True
         return False
-
     def overall_progress(self) -> Dict:
         total = len(self.state)
         by_stage: Dict[str, int] = {s: 0 for s in STAGES}
@@ -580,7 +606,7 @@ class ComprehensiveAITraining:
 
         if graded["passed"]:
             score = graded["grade"]["overall_score"]
-            advanced = self.tracker.update_mastery(domain["domain"], score)
+            advanced = self.tracker.update_mastery(domain["domain"], score, passed=True)
             entry = {
                 "domain":    domain["domain"],
                 "stage":     current_stage,
