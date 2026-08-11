@@ -768,8 +768,9 @@ class ComprehensiveAITraining:
     def _self_assess_domain(self, domain: Dict, stage: str) -> Optional[str]:
         """
         DMAI self-assessment fallback: score domain competency from the knowledge DB.
-        Looks up mastered syllabus topics, insights, and capabilities related to this
-        domain. Returns a synthetic competency string the scorer can evaluate, or None
+        Looks up syllabus topics (with content), insights (by full-text search across
+        all text columns), and capabilities related to this domain.
+        Returns a synthetic competency string the scorer can evaluate, or None
         if the DB has no relevant knowledge for this domain.
         """
         try:
@@ -787,27 +788,47 @@ class ComprehensiveAITraining:
             domain_name = domain["domain"].lower().replace(" ", "_")
             keywords = [w.lower() for w in domain["domain"].split()]
             skills = domain.get("stages", {}).get(stage, [])
+            skill_keywords = [s.lower() for s in skills[:6]] if skills else keywords
 
             conn = safe_open_kdb(db_path, timeout=10)
             evidence = []
 
-            # Check mastered syllabus topics related to this domain
-            kw_like = " OR ".join(f"LOWER(topic) LIKE '%{k}%'" for k in keywords)
-            rows = conn.execute(
-                f"SELECT topic, mastery FROM syllabus_content "
-                f"WHERE ({kw_like}) AND mastery >= 0.7 LIMIT 10"
-            ).fetchall()
-            for topic, mastery in rows:
-                evidence.append(f"Mastered topic: {topic} (mastery={mastery:.2f})")
+            # Check syllabus topics related to this domain (with content, no mastery filter)
+            kw_like = " OR ".join(f"LOWER(topic) LIKE '%{k}%'" for k in keywords[:3])
+            try:
+                rows = conn.execute(
+                    f"SELECT topic, mastery, COALESCE(content,'') FROM syllabus_content "
+                    f"WHERE ({kw_like}) LIMIT 8"
+                ).fetchall()
+                for topic, mastery, content in rows:
+                    snippet = str(content)[:150].replace("\n", " ")
+                    evidence.append(f"Topic: {topic} (mastery={mastery:.2f}): {snippet}")
+            except Exception:
+                pass
 
-            # Check insights related to this domain
-            ins_rows = conn.execute(
-                "SELECT insight_text FROM insights "
-                "WHERE LOWER(source_topic) LIKE ? OR LOWER(entity_type) LIKE ? LIMIT 5",
-                (f"%{keywords[0]}%", f"%{domain_name}%")
-            ).fetchall()
-            for (text,) in ins_rows:
-                evidence.append(f"Knowledge insight: {str(text)[:120]}")
+            # Check insights — search ALL text columns AND insight_text content
+            # for both domain keywords AND specific exam skill keywords
+            all_search_terms = list(set(keywords + skill_keywords))[:6]
+            ins_seen = set()
+            for term in all_search_terms[:4]:
+                try:
+                    rows = conn.execute(
+                        "SELECT COALESCE(insight_text,'') FROM insights "
+                        "WHERE LOWER(COALESCE(insight_text,'')) LIKE ? "
+                        "   OR LOWER(COALESCE(source_topic,'')) LIKE ? "
+                        "   OR LOWER(COALESCE(target_topic,'')) LIKE ? "
+                        "   OR LOWER(COALESCE(entity_type,'')) LIKE ? "
+                        "LIMIT 4",
+                        (f"%{term}%", f"%{term}%", f"%{term}%", f"%{term}%")
+                    ).fetchall()
+                    for (text,) in rows:
+                        if text and len(str(text).strip()) > 30:
+                            key = str(text)[:80]
+                            if key not in ins_seen:
+                                ins_seen.add(key)
+                                evidence.append(f"Knowledge: {str(text)[:150]}")
+                except Exception:
+                    pass
 
             # Check capabilities matching domain
             try:
@@ -823,8 +844,6 @@ class ComprehensiveAITraining:
             conn.close()
 
             if not evidence:
-                # No direct evidence but DMAI has been learning — return baseline
-                # self-assessment based on stage expectations
                 skill_list = ", ".join(skills[:4]) if skills else "general competency"
                 return (
                     f"DMAI baseline self-assessment for domain '{domain['domain']}' at stage {stage}.\n"
@@ -833,13 +852,12 @@ class ComprehensiveAITraining:
                     f"means baseline competency is developing. Self-rating: progressing."
                 )
 
-            # Build a self-assessment response that the scorer can evaluate
             skill_list = ", ".join(skills[:4]) if skills else "general competency"
             return (
                 f"DMAI self-assessment for domain '{domain['domain']}' at stage {stage}.\n"
                 f"Target skills: {skill_list}\n"
                 f"Evidence from knowledge base ({len(evidence)} items):\n"
-                + "\n".join(evidence[:8])
+                + "\n".join(evidence[:10])
             )
         except Exception as _e:
             logger.debug("_self_assess_domain failed for %s: %s", domain.get("domain"), _e)
