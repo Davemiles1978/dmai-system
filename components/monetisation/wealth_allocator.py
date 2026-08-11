@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-import sqlite3
+from components.db import safe_open_kdb  # was sqlite3
 from components.db import safe_open_kdb
 import threading
 import time

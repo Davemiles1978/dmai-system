@@ -221,7 +221,7 @@ class BettingAdvisor:
         """
         try:
             existing = {row[1] for row in []}
-        except sqlite3.OperationalError:
+        except Exception:
             # Table doesn't exist yet — the CREATE TABLE from _SCHEMA just
             # ran, so this is impossible in normal flow. Bail quietly.
             return
@@ -245,7 +245,7 @@ class BettingAdvisor:
                 continue
             try:
                 c.execute(f"ALTER TABLE mon_tips ADD COLUMN {col} {ddl}")
-            except sqlite3.OperationalError as e:
+            except Exception as e:
                 # Race with a parallel migration attempt — log and continue.
                 logging.getLogger("dmai.monetisation").warning(
                     "mon_tips migrate ADD COLUMN %s failed: %s", col, e,
@@ -946,7 +946,7 @@ class BettingAdvisor:
                         (limit,),
                     ).fetchall()
             return [dict(r) for r in rows]
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "no such table" in str(e).lower():
                 self._init_schema()
                 return []
@@ -972,7 +972,7 @@ class BettingAdvisor:
                     "FROM mon_user_bets b LEFT JOIN mon_tips t ON b.tip_id = t.id "
                     "WHERE b.status IN ('won','lost','void','cashed_out')"
                 ).fetchall()
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "no such table" in str(e).lower():
                 self._init_schema()
                 return empty
@@ -1013,7 +1013,7 @@ class BettingAdvisor:
                     "SELECT status, COUNT(*) AS n, COALESCE(SUM(profit_loss),0) AS pl, "
                     "COALESCE(SUM(actual_stake),0) AS turnover FROM mon_tips GROUP BY status"
                 ).fetchall()
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "no such table" in str(e).lower():
                 import logging as _lg
                 _lg.getLogger("dmai.monetisation").warning("mon_tips missing — re-creating schema")

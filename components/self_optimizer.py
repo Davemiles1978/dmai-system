@@ -90,7 +90,7 @@ class SelfOptimizer:
         if component == "response_time":
             cursor.execute('''
                 SELECT AVG(time_spent) FROM learning_outcomes 
-                WHERE timestamp > datetime('now', '-1 hour')
+                WHERE timestamp > NOW() - INTERVAL '1 hour'
             ''')
             result = cursor.fetchone()
             metrics['response_time_ms'] = result[0] * 1000 if result and result[0] else 500
@@ -102,7 +102,7 @@ class SelfOptimizer:
         elif component == "accuracy":
             cursor.execute('''
                 SELECT AVG(response_quality) FROM learning_outcomes 
-                WHERE timestamp > datetime('now', '-1 day')
+                WHERE timestamp > NOW() - INTERVAL '1 day'
             ''')
             result = cursor.fetchone()
             metrics['response_quality'] = result[0] if result and result[0] else 0.5
@@ -110,7 +110,7 @@ class SelfOptimizer:
         elif component == "learning_rate":
             cursor.execute('''
                 SELECT AVG(weight_after - weight_before) FROM learning_outcomes 
-                WHERE timestamp > datetime('now', '-1 day')
+                WHERE timestamp > NOW() - INTERVAL '1 day'
             ''')
             result = cursor.fetchone()
             metrics['weight_gain_rate'] = result[0] if result and result[0] else 0.1

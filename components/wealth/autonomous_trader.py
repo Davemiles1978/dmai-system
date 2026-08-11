@@ -74,7 +74,7 @@ def _bytes_to_str(v):
 
 
 def _row_safe(row):
-    """Convert a sqlite3.Row to a JSON-safe dict, decoding bytes values."""
+    """Convert a dict to a JSON-safe dict, decoding bytes values."""
     if row is None:
         return None
     try:
@@ -183,12 +183,12 @@ SCHEMA = [
         today_deployed_pct REAL NOT NULL DEFAULT 0,
         today_trades    INTEGER NOT NULL DEFAULT 0,
         today_open_eq   REAL,
-        created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
-        updated_at      TEXT    NOT NULL DEFAULT (datetime('now'))
+        created_at      TEXT    NOT NULL DEFAULT (NOW()),
+        updated_at      TEXT    NOT NULL DEFAULT (NOW())
     )""",
     """CREATE TABLE IF NOT EXISTS at_ticks (
         id              SERIAL PRIMARY KEY,
-        ts              TEXT    NOT NULL DEFAULT (datetime('now')),
+        ts              TEXT    NOT NULL DEFAULT (NOW()),
         market_open     INTEGER NOT NULL,
         tier            TEXT    NOT NULL,
         live            INTEGER NOT NULL,
@@ -199,7 +199,7 @@ SCHEMA = [
     )""",
     """CREATE TABLE IF NOT EXISTS at_trades (
         id              SERIAL PRIMARY KEY,
-        ts              TEXT    NOT NULL DEFAULT (datetime('now')),
+        ts              TEXT    NOT NULL DEFAULT (NOW()),
         symbol          TEXT    NOT NULL,
         side            TEXT    NOT NULL,
         qty             REAL,
@@ -211,7 +211,7 @@ SCHEMA = [
     )""",
     """CREATE TABLE IF NOT EXISTS at_tier_changes (
         id              SERIAL PRIMARY KEY,
-        ts              TEXT    NOT NULL DEFAULT (datetime('now')),
+        ts              TEXT    NOT NULL DEFAULT (NOW()),
         from_tier       TEXT    NOT NULL,
         to_tier         TEXT    NOT NULL,
         reason          TEXT    NOT NULL
@@ -324,7 +324,7 @@ class AutonomousTrader:
         """
         try:
             c = safe_open_kdb(self.db_path, timeout=30)
-            c.row_factory = sqlite3.Row
+            c.row_factory = dict
             try:
                 pass
             except Exception:
@@ -338,7 +338,7 @@ class AutonomousTrader:
             )
             self._self_heal_db()
             c = safe_open_kdb(self.db_path, timeout=30)
-            c.row_factory = sqlite3.Row
+            c.row_factory = dict
             try:
                 pass
             except Exception:
@@ -397,14 +397,14 @@ class AutonomousTrader:
                 "ALTER TABLE at_state ADD COLUMN mode TEXT NOT NULL DEFAULT 'paper' "
                 "CHECK (mode IN ('paper', 'live'))"
             )
-        except sqlite3.OperationalError:
+        except Exception:
             # Column already exists — re-run is a no-op.
             pass
         try:
             c.execute(
                 "UPDATE at_state SET mode = 'paper' WHERE mode IS NULL AND id = 1"
             )
-        except sqlite3.OperationalError:
+        except Exception:
             pass
 
     def _init_db(self) -> None:
@@ -491,7 +491,7 @@ class AutonomousTrader:
                     if isinstance(raw_tier, bytes) or (raw_tier and str(raw_tier) not in TIERS):
                         clean = _norm_tier(raw_tier)
                         c.execute(
-                            "UPDATE at_state SET tier = ?, updated_at = datetime('now') WHERE id = 1",
+                            "UPDATE at_state SET tier = ?, updated_at = NOW() WHERE id = 1",
                             (clean,),
                         )
                         logger.warning(
@@ -556,7 +556,7 @@ class AutonomousTrader:
     def set_enabled(self, enabled: bool, reason: str = "manual") -> Dict[str, Any]:
         with self._conn() as c:
             c.execute(
-                "UPDATE at_state SET enabled = ?, updated_at = datetime('now') WHERE id = 1",
+                "UPDATE at_state SET enabled = ?, updated_at = NOW() WHERE id = 1",
                 (1 if enabled else 0,),
             )
             c.commit()
@@ -594,7 +594,7 @@ class AutonomousTrader:
             cur = c.execute("SELECT mode FROM at_state WHERE id = 1").fetchone()
             from_mode = _norm_at_mode(cur["mode"]) if cur else "paper"
             c.execute(
-                "UPDATE at_state SET mode = ?, updated_at = datetime('now') WHERE id = 1",
+                "UPDATE at_state SET mode = ?, updated_at = NOW() WHERE id = 1",
                 (norm,),
             )
             c.commit()
@@ -614,7 +614,7 @@ class AutonomousTrader:
             if from_tier == tier:
                 return self.status()
             c.execute(
-                "UPDATE at_state SET tier = ?, updated_at = datetime('now') WHERE id = 1",
+                "UPDATE at_state SET tier = ?, updated_at = NOW() WHERE id = 1",
                 (tier,),
             )
             c.execute(
@@ -827,7 +827,7 @@ class AutonomousTrader:
                 eq = self._equity_safe()
                 c.execute(
                     "UPDATE at_state SET today_date = ?, today_deployed_pct = 0, "
-                    "today_trades = 0, today_open_eq = ?, updated_at = datetime('now') "
+                    "today_trades = 0, today_open_eq = ?, updated_at = NOW() "
                     "WHERE id = 1",
                     (today, eq),
                 )
@@ -920,7 +920,7 @@ class AutonomousTrader:
                             c.execute(
                                 "UPDATE at_state SET today_trades = today_trades + 1, "
                                 "today_deployed_pct = today_deployed_pct + ?, "
-                                "updated_at = datetime('now') WHERE id = 1",
+                                "updated_at = NOW() WHERE id = 1",
                                 (caps["max_pct_per_trade"],),
                             )
                             c.commit()
@@ -935,8 +935,8 @@ class AutonomousTrader:
                  signals_seen, signals_passed, trades_placed, note),
             )
             c.execute(
-                "UPDATE at_state SET last_tick_ts = datetime('now'), last_tick_note = ?, "
-                "updated_at = datetime('now') WHERE id = 1",
+                "UPDATE at_state SET last_tick_ts = NOW(), last_tick_note = ?, "
+                "updated_at = NOW() WHERE id = 1",
                 (note,),
             )
             c.commit()
@@ -1121,7 +1121,7 @@ class AutonomousTrader:
             c.execute(
                 "CREATE TABLE IF NOT EXISTS at_pending ("
                 "id SERIAL PRIMARY KEY, "
-                "ts TEXT NOT NULL DEFAULT (datetime('now')), "
+                "ts TEXT NOT NULL DEFAULT (NOW()), "
                 "symbol TEXT NOT NULL, confidence REAL, ev REAL, tier TEXT, "
                 "status TEXT NOT NULL DEFAULT 'pending', "
                 "resolved_ts TEXT, result_json TEXT)"
@@ -1189,7 +1189,7 @@ class AutonomousTrader:
         qty = float(result.get("qty") or 0) if isinstance(result, dict) else 0
         with self._conn() as c:
             c.execute(
-                "UPDATE at_pending SET status = ?, resolved_ts = datetime('now'), "
+                "UPDATE at_pending SET status = ?, resolved_ts = NOW(), "
                 "result_json = ? WHERE id = ?",
                 ("approved" if success else "failed",
                  json.dumps(result)[:4000], pending_id),
@@ -1218,7 +1218,7 @@ class AutonomousTrader:
         self._ensure_pending_table()
         with self._conn() as c:
             c.execute(
-                "UPDATE at_pending SET status = 'rejected', resolved_ts = datetime('now'), "
+                "UPDATE at_pending SET status = 'rejected', resolved_ts = NOW(), "
                 "result_json = ? WHERE id = ? AND status = 'pending'",
                 (json.dumps({"reason": reason}), pending_id),
             )
@@ -1235,7 +1235,7 @@ class AutonomousTrader:
                 trades = c.execute(
                     "SELECT COUNT(*) AS n FROM at_trades WHERE date(ts) = ?", (today,)
                 ).fetchone()
-        except sqlite3.OperationalError as e:
+        except Exception as e:
             if "no such table" in str(e).lower():
                 logger.warning("AutonomousTrader tables missing — reinitialising schema")
                 try:
