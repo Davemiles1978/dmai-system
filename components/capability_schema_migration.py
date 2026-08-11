@@ -131,7 +131,7 @@ def migrate_capabilities_schema(*,
                 "CREATE INDEX IF NOT EXISTS idx_caps_mode_prov "
                 "ON capabilities(runtime_mode, provenance)"
             )
-            plan.append("CREATE TABLE IF NOT EXISTS materialisation_log (...)")
+            # materialisation_log handled by postgres_schema.py
             report["planned"] = plan
             return report
 
@@ -182,10 +182,10 @@ def migrate_capabilities_schema(*,
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS materialisation_log (
-                capability_id  TEXT,
-                outcome        TEXT,
-                created_at     TEXT,
-                detail         TEXT
+                id SERIAL PRIMARY KEY, capability_id TEXT, concept TEXT, slug TEXT,
+                outcome TEXT, model_used TEXT, reasons TEXT,
+                judge_confidence DOUBLE PRECISION, duration_sec DOUBLE PRECISION,
+                created_at TIMESTAMPTZ DEFAULT NOW()
             )
             """
         )

@@ -280,7 +280,7 @@ CREATE TABLE IF NOT EXISTS insights (
 CREATE INDEX IF NOT EXISTS idx_insights_entity ON insights(entity_type);
 CREATE INDEX IF NOT EXISTS idx_insights_created ON insights(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_insights_source_topic ON insights(source_topic);
-CREATE INDEX IF NOT EXISTS idx_insights_provenance ON insights(provenance);
+-- CREATE INDEX IF NOT EXISTS idx_insights_provenance ON insights(provenance); -- column may not exist
 """
 
 
