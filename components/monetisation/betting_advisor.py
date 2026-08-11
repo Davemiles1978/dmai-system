@@ -220,6 +220,8 @@ class BettingAdvisor:
         idempotent: it only adds columns that don't already exist.
         """
         try:
+            # Check if table exists first
+            c.execute("SELECT 1 FROM mon_tips LIMIT 0")
             existing = {row[1] for row in c.execute("SELECT * FROM mon_tips LIMIT 0").description or []}
         except Exception:
             # Table doesn't exist yet — the CREATE TABLE from _SCHEMA just

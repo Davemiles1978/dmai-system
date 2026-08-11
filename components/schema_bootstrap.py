@@ -47,6 +47,10 @@ _SKIP_FILES = (
     "P0T3_Connect_local_core_to_PostgreSQL.py",
     "schema_bootstrap.py",  # don't scan ourselves — fallback strings would re-match
     "self_optimizer.py",    # uses multi-statement string concat, not portable SQLite
+    "capability_schema_migration.py",  # PG-incompatible syntax
+    "sqlite_persistence.py",  # uses sqlite3 directly
+    "insight_promoter.py",  # has malformed CREATE TABLE
+    "capability_materialiser.py",  # SQLite-specific DDL
 )
 
 # Match CREATE TABLE/INDEX IF NOT EXISTS up to the terminating `;` at end-of-statement.
