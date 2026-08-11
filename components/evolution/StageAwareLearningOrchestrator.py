@@ -1565,44 +1565,174 @@ Be specific, educational, and focused on real application.
         return passed
 
     def _answer_question(self, topic_name: str, question: str) -> str:
-        """DMAI answers a question using her own SQLite knowledge base first."""
-        # PRIMARY: Query SQLite knowledge base (where save_knowledge writes)
+        """DMAI answers a question using every available resource.
+        
+        Priority order:
+        1. Knowledge base (insights table via PG/SQLite)
+        2. AI tutors (ai_hub)
+        3. Web search for real-time information
+        4. Trigger immediate research + learn + answer (never returns empty)
+        """
+        # TIER 1: Knowledge base
         try:
-            import sqlite3
-            from pathlib import Path
-            db_path = Path("data/dmai_knowledge.db")
-            if db_path.exists():
-                conn = safe_open_kdb(str(db_path))
-                conn.row_factory = sqlite3.Row
-                cursor = conn.cursor()
-                cursor.execute('''
-                    SELECT insight_text, LENGTH(insight_text) as len
-                    FROM insights
-                    WHERE source_title LIKE ? OR insight_text LIKE ?
-                    ORDER BY id DESC LIMIT 5
-                ''', (f'%{topic_name}%', f'%{topic_name}%'))
-                rows = cursor.fetchall()
-                conn.close()
-                if rows:
-                    knowledge = " ".join([r['insight_text'][:800] for r in rows[:3]])
-                    if len(knowledge) > 50:
-                        return knowledge[:1500]
+            from components.db import safe_open_kdb
+            conn = safe_open_kdb("data/dmai_knowledge.db")
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT insight_text FROM insights "
+                "WHERE source_title LIKE ? OR insight_text LIKE ? "
+                "ORDER BY id DESC LIMIT 5",
+                (f"%{topic_name}%", f"%{topic_name}%")
+            )
+            rows = cursor.fetchall()
+            conn.close()
+            if rows:
+                texts = []
+                for r in rows[:3]:
+                    if hasattr(r, "get"):
+                        texts.append(str(r.get("insight_text", ""))[:800])
+                    elif isinstance(r, (tuple, list)):
+                        texts.append(str(r[0])[:800])
+                knowledge = " ".join(texts)
+                if len(knowledge) > 50:
+                    return knowledge[:1500]
         except Exception:
             pass
-        
-        # FALLBACK: Ask an AI tutor
+
+        # TIER 2: AI tutors
         if self.ai_hub:
             try:
                 result = self.ai_hub.query_all_tutors(
-                    f"Answer this question about {topic_name}: {question}"
+                    f"Answer this question about {topic_name}: {question}\n\n"
+                    f"Provide a detailed, accurate, educational response."
                 )
                 for tutor, response in result.get('responses', {}).items():
-                    if response and len(response) > 20:
-                        return response[:1000]
-            except:
+                    if response and len(response) > 50:
+                        return response[:1500]
+            except Exception:
                 pass
-        
-        return f"I don't have enough knowledge about {topic_name} yet to answer this question properly."
+            if hasattr(self.ai_hub, "chat"):
+                try:
+                    resp = self.ai_hub.chat(
+                        f"Question about {topic_name}: {question}\nProvide a thorough answer."
+                    )
+                    if resp and len(str(resp)) > 50:
+                        return str(resp)[:1500]
+                except Exception:
+                    pass
+
+        # TIER 3: Web search
+        try:
+            import requests
+            resp = requests.get(
+                "https://api.duckduckgo.com/",
+                params={"q": f"{topic_name} {question}", "format": "json", "no_html": 1},
+                timeout=10
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                abstract = data.get("AbstractText", "")
+                if abstract and len(abstract) > 100:
+                    return abstract[:1500]
+                related = data.get("RelatedTopics", [])
+                if related:
+                    texts = [r["Text"] for r in related[:3] if isinstance(r, dict) and r.get("Text")]
+                    if texts:
+                        return " ".join(texts)[:1500]
+        except Exception:
+            pass
+
+        # TIER 4: Trigger immediate learning — research the topic NOW,
+        # store the knowledge, then answer from what was just learned.
+        logger.info(f"Researching unknown topic: {topic_name}")
+        try:
+            # Attempt to learn the topic on the spot
+            topic_info = {
+                "topic": topic_name,
+                "category": "core",
+                "harvest_sources": ["ai_tutors", "web"],
+                "mastery_threshold": 1,
+                "is_accelerator": False,
+            }
+            result = self.learn_topic(topic_info, consciousness=0.0)
+            if result.get("success"):
+                # Now retry knowledge base lookup with fresh data
+                from components.db import safe_open_kdb
+                conn = safe_open_kdb("data/dmai_knowledge.db")
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT insight_text FROM insights "
+                    "WHERE source_title LIKE ? OR insight_text LIKE ? "
+                    "ORDER BY id DESC LIMIT 3",
+                    (f"%{topic_name}%", f"%{topic_name}%")
+                )
+                rows = cursor.fetchall()
+                conn.close()
+                if rows:
+                    texts = []
+                    for r in rows:
+                        val = r.get("insight_text") if hasattr(r, "get") else r[0]
+                        texts.append(str(val)[:800])
+                    knowledge = " ".join(texts)
+                    if len(knowledge) > 50:
+                        return (
+                            f"[DMAI just researched this topic to answer your question]\n\n"
+                            f"{knowledge[:1400]}"
+                        )
+        except Exception as e:
+            logger.warning(f"On-the-spot learning failed for {topic_name}: {e}")
+
+        # FINAL FALLBACK: Construct answer from related concepts in knowledge base
+        try:
+            from components.db import safe_open_kdb
+            conn = safe_open_kdb("data/dmai_knowledge.db")
+            cursor = conn.cursor()
+            words = [w for w in topic_name.split() if len(w) > 3]
+            all_texts = []
+            for word in words[:3]:
+                cursor.execute(
+                    "SELECT insight_text FROM insights "
+                    "WHERE LENGTH(insight_text) > 100 AND insight_text LIKE ? "
+                    "ORDER BY id DESC LIMIT 2",
+                    (f"%{word}%",)
+                )
+                for r in cursor.fetchall():
+                    val = r.get("insight_text") if hasattr(r, "get") else r[0]
+                    all_texts.append(str(val)[:400])
+            conn.close()
+            if all_texts:
+                combined = " ".join(all_texts)
+                return (
+                    f"Drawing from DMAI's existing knowledge on related concepts "
+                    f"to answer your question about {topic_name}:\n\n{combined[:1400]}"
+                )
+        except Exception:
+            pass
+
+        # This point should never be reached — but if it is, trigger syllabus addition
+        logger.warning(f"All answer tiers exhausted for topic: {topic_name} — adding to syllabus")
+        try:
+            from components.db import safe_open_kdb
+            conn = safe_open_kdb("data/dmai_knowledge.db")
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT OR IGNORE INTO syllabus_content (topic, stage, category, content, mastery, created_at) "
+                "VALUES (?, ?, ?, ?, 0.0, datetime('now'))",
+                (topic_name.lower(), self.current_stage, "core",
+                 f"Auto-added: DMAI needs to research {topic_name}. Question asked: {question[:200]}"
+                )
+            )
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+        return (
+            f"DMAI has added '{topic_name}' to her research syllabus and is actively "
+            f"learning about it now. This topic has been prioritised for immediate study. "
+            f"Please ask again shortly — I will have a much better answer after my next "
+            f"learning cycle completes."
+        )
+
 
     def _evaluate_answer(self, topic_name: str, question: str, answer: str) -> Dict:
         """Evaluate answer against stored knowledge using embeddings and key concepts."""
@@ -1651,27 +1781,29 @@ Be specific, educational, and focused on real application.
         return {"pass": False, "reason": f"Answer lacks key concepts (found {concepts_found}/{len(key_concepts)}) and similarity too low ({similarity:.2f})"}
     
     def _get_stored_knowledge(self, topic_name: str) -> str:
-        """Retrieve stored knowledge from SQLite for a topic."""
+        """Retrieve stored knowledge for a topic (PG on Render, SQLite fallback)."""
         try:
-            import sqlite3
-            from pathlib import Path
-            db_path = Path("data/dmai_knowledge.db")
-            if db_path.exists():
-                conn = safe_open_kdb(str(db_path))
-                cursor = conn.cursor()
-                cursor.execute('''
-                    SELECT insight_text FROM insights 
-                    WHERE source_title = ? AND LENGTH(insight_text) > 200
-                    ORDER BY id DESC LIMIT 1
-                ''', (topic_name,))
-                row = cursor.fetchone()
-                conn.close()
-                if row:
-                    return row[0]
+            from components.db import safe_open_kdb
+            conn = safe_open_kdb("data/dmai_knowledge.db")
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT insight_text FROM insights "
+                "WHERE source_title = ? AND LENGTH(insight_text) > 200 "
+                "ORDER BY id DESC LIMIT 1",
+                (topic_name,)
+            )
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                if hasattr(row, "get"):
+                    return str(row.get("insight_text", ""))
+                elif isinstance(row, (tuple, list)):
+                    return str(row[0])
         except Exception:
             pass
         return ""
-    
+
+
     def _get_key_concepts(self, topic_name: str) -> List[str]:
         """Return key concepts for a topic based on its knowledge entry."""
         # Map topics to their key concepts
