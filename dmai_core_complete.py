@@ -14773,6 +14773,40 @@ def _start_background_services(force=False):
             target=_alex_riviera_loop, daemon=True, name="alex_riviera_content"
         ).start()
         logger.info("Guaranteed background service started: alex_riviera_content")
+    # Muse-Glimmer-30B ingestion — one-time reverse-engineering of Meta's open-source 30B model
+    # Only runs if not already completed (checks ingestion state file).
+    def _svc_muse_glimmer():
+        import json as _mj
+        _state_file = Path(DATA_PATH) / "muse_glimmer_ingestion" / "ingestion_state.json"
+        if _state_file.exists():
+            try:
+                _state = _mj.loads(_state_file.read_text())
+                if _state.get("neurons_created", 0) >= 11:
+                    logger.info("Muse-Glimmer-30B: already ingested (%d neurons) — skipping",
+                                _state["neurons_created"])
+                    return
+            except Exception:
+                pass
+        try:
+            from components.muse_glimmer_ingestor import ingest_muse_glimmer
+            result = ingest_muse_glimmer(
+                si_core=components.get("si_core"),
+                knowledge_graph=components.get("knowledge_graph"),
+                data_path=DATA_PATH,
+            )
+            logger.info(
+                "Muse-Glimmer-30B: ingested %d files, created %d neurons — %s",
+                result.get("files_analyzed", 0),
+                result.get("neurons_created", 0),
+                result.get("summary", "complete")[:120],
+            )
+        except Exception as _e:
+            logger.warning("Muse-Glimmer ingestion failed: %s", _e)
+    threading.Thread(
+        target=_svc_muse_glimmer, daemon=True, name="muse_glimmer_ingestion"
+    ).start()
+    logger.info("Guaranteed background service started: muse_glimmer_ingestion")
+
 
     if (os.environ.get("TELEGRAM_BOT_TOKEN")
             and os.environ.get("TELEGRAM_CHAT_ID")
