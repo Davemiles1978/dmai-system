@@ -1787,6 +1787,8 @@ Be specific, educational, and focused on real application.
                     _log.info("Learning cycle: %s", result.get("message", "no new topics"))
             except Exception as e:
                 _log.warning("Stage learner loop error: %s", e)
+                import traceback as _tb
+                _log.warning("Traceback:\n%s", _tb.format_exc())
             _time.sleep(600)  # 10 minutes between cycles
 
     def run_phase_exam(self) -> Dict:
