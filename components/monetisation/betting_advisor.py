@@ -249,7 +249,7 @@ class BettingAdvisor:
                 c.execute(f"ALTER TABLE mon_tips ADD COLUMN {col} {ddl}")
             except Exception as e:
                 # Race with a parallel migration attempt — log and continue.
-                logging.getLogger("dmai.monetisation").warning(
+                logging.getLogger("dmai.monetisation").debug(
                     "mon_tips migrate ADD COLUMN %s failed: %s", col, e,
                 )
 
