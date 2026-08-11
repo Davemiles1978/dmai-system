@@ -384,13 +384,15 @@ CREATE TABLE IF NOT EXISTS learning_progress (
 
 CREATE TABLE IF NOT EXISTS learning_outcomes (
     id SERIAL PRIMARY KEY,
-    domain TEXT,
-    stage TEXT,
-    outcome TEXT,
-    passed INTEGER DEFAULT 0,
-    time_spent DOUBLE PRECISION DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    topic TEXT,
+    strategy_used TEXT,
+    weight_before INTEGER,
+    weight_after INTEGER,
+    response_quality DOUBLE PRECISION,
+    time_spent DOUBLE PRECISION,
+    timestamp TIMESTAMPTZ DEFAULT NOW()
 );
+
 
 CREATE TABLE IF NOT EXISTS learning_patterns (
     id SERIAL PRIMARY KEY,
@@ -715,12 +717,14 @@ CREATE TABLE IF NOT EXISTS strategy_runs (
 );
 
 CREATE TABLE IF NOT EXISTS optimal_strategies (
-    id SERIAL PRIMARY KEY,
-    strategy_type TEXT,
-    config_json TEXT,
-    score DOUBLE PRECISION,
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    topic_category TEXT,
+    strategy TEXT,
+    effectiveness DOUBLE PRECISION,
+    sample_size INTEGER,
+    last_updated TIMESTAMPTZ DEFAULT NOW(),
+    PRIMARY KEY (topic_category, strategy)
 );
+
 
 -- Performance / benchmarking
 CREATE TABLE IF NOT EXISTS performance (
