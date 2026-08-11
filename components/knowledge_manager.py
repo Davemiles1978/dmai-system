@@ -214,9 +214,22 @@ class TwoTierKnowledgeManager:
             )
         """)
 
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_core_topic ON core_knowledge(topic)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_weighted_topic ON weighted_knowledge(topic)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_weighted_weight ON weighted_knowledge(weight DESC)")
+        try:
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_core_topic ON core_knowledge(topic)")
+        except Exception:
+            pass
+        try:
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_weighted_topic ON weighted_knowledge(topic)")
+        except Exception:
+            # Fallback: some PG instances have knowledge_id instead of topic
+            try:
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_weighted_kid ON weighted_knowledge(knowledge_id)")
+            except Exception:
+                pass
+        try:
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_weighted_weight ON weighted_knowledge(weight DESC)")
+        except Exception:
+            pass
 
         conn.commit()
         conn.close()

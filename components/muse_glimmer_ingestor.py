@@ -168,6 +168,10 @@ class MuseGlimmerIngestor:
 
     def download_file(self, filename: str) -> Optional[Path]:
         """Download a single file from the bucket."""
+        # Validate filename
+        if not isinstance(filename, str) or "/" in filename or ".." in filename:
+            logger.warning(f"Skipping invalid filename: {filename}")
+            return None
         url = f"{HF_BUCKET}/resolve/main/{filename}"
         dest = self.ingest_dir / filename
         dest.parent.mkdir(parents=True, exist_ok=True)
