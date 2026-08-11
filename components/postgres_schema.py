@@ -262,6 +262,8 @@ CREATE TABLE IF NOT EXISTS at_exits (
     symbol TEXT,
     exit_price DOUBLE PRECISION,
     profit_loss DOUBLE PRECISION,
+    pnl_usd DOUBLE PRECISION,
+    pnl_pct DOUBLE PRECISION,
     reason TEXT,
     ts TIMESTAMPTZ DEFAULT NOW()
 );
