@@ -9404,7 +9404,6 @@ def _run_stage_progression():
     try:
         m = _get_db_metrics()
         stage, within_pct = _calculate_learning_stage(m)
-
         # PR #168: Cross-check against syllabus-based stage from the orchestrator.
         # Metrics-based _calculate_learning_stage uses cumulative insight/capability
         # counts that grow passively and can report "Adult" even when Baby-stage
@@ -9416,34 +9415,54 @@ def _run_stage_progression():
             if sl and hasattr(sl, "get_current_stage"):
                 syllabus_stage = sl.get_current_stage()
                 if syllabus_stage:
-                    stage_order = ["Baby", "Toddler", "Child", "Teen", "Adult"]
-                    metrics_idx = stage_order.index(stage) if stage in stage_order else 0
-                    syllabus_idx = stage_order.index(syllabus_stage) if syllabus_stage in stage_order else 0
-                    if metrics_idx > syllabus_idx:
-                        logger.info(
-                            "STAGE CAPPED: metrics=%s (idx %d) -> syllabus=%s (idx %d) "
-                            "[orchestrator reports unmastered topics in %s]",
-                            stage, metrics_idx, syllabus_stage, syllabus_idx, syllabus_stage
+                    # Unified stage order covering all stages from both systems
+                    _cap_order = [
+                        "Baby", "Toddler", "Child", "Teen", "Teenager",
+                        "Adult", "Expert", "Master", "Transcendent", "Infinite",
+                    ]
+                    # Map synonyms so both "Teen" and "Teenager" resolve correctly
+                    _resolve = {"Teen": "Teenager", "Teenager": "Teenager"}
+                    _metrics_resolved = _resolve.get(stage, stage)
+                    _syllabus_resolved = _resolve.get(syllabus_stage, syllabus_stage)
+
+                    if _metrics_resolved in _cap_order and _syllabus_resolved in _cap_order:
+                        metrics_idx = _cap_order.index(_metrics_resolved)
+                        syllabus_idx = _cap_order.index(_syllabus_resolved)
+                        if metrics_idx > syllabus_idx:
+                            logger.info(
+                                "STAGE CAPPED: metrics=%s -> syllabus=%s "
+                                "[orchestrator reports unmastered topics in %s]",
+                                stage, syllabus_stage, syllabus_stage,
+                            )
+                            stage = syllabus_stage
+                            # Recalculate within_pct — use the capped stage name
+                            # against _STAGE_NAMES (which uses "Teenager" not "Teen")
+                            _capped = _resolve.get(stage, stage)
+                            if _capped in _STAGE_NAMES:
+                                idx = _STAGE_NAMES.index(_capped)
+                                if idx < len(_STAGE_NAMES) - 1:
+                                    ct = _STAGE_THRESHOLDS[_STAGE_NAMES[idx]]
+                                    nt = _STAGE_THRESHOLDS[_STAGE_NAMES[idx + 1]]
+                                    def _r2(v, lo, hi):
+                                        span = hi - lo
+                                        return min((v - lo) / span, 1.0) if span > 0 else 1.0
+                                    within_pct = round(min(
+                                        _r2(m["insights"],   ct[0], nt[0]),
+                                        _r2(m["capabilities"], ct[1], nt[1]),
+                                        _r2(m["vocab"],      ct[2], nt[2]),
+                                        _r2(m["avg_kpi"],    ct[3], nt[3]),
+                                    ) * 100, 1)
+                                else:
+                                    within_pct = 100.0
+                            else:
+                                logger.debug("Stage cross-check: capped stage %s not in _STAGE_NAMES", _capped)
+                    else:
+                        logger.debug(
+                            "Stage cross-check skipped: metrics=%s syllabus=%s not in cap_order",
+                            _metrics_resolved, _syllabus_resolved,
                         )
-                        stage = syllabus_stage
-                        # Recalculate within_pct for the capped stage
-                        idx = stage_order.index(stage)
-                        if idx < len(stage_order) - 1:
-                            ct = _STAGE_THRESHOLDS[stage]
-                            nt = _STAGE_THRESHOLDS[stage_order[idx + 1]]
-                            def _r2(v, lo, hi):
-                                span = hi - lo
-                                return min((v - lo) / span, 1.0) if span > 0 else 1.0
-                            within_pct = round(min(
-                                _r2(m["insights"],   ct[0], nt[0]),
-                                _r2(m["capabilities"], ct[1], nt[1]),
-                                _r2(m["vocab"],      ct[2], nt[2]),
-                                _r2(m["avg_kpi"],    ct[3], nt[3]),
-                            ) * 100, 1)
-                        else:
-                            within_pct = 100.0
         except Exception as _cross_err:
-            logger.debug("Stage cross-check skipped: %s", _cross_err)
+            logger.warning("Stage cross-check failed: %s", _cross_err)
 
         _write_stage_to_db(stage, within_pct, m)
         logger.debug("Stage: %s %.1f%% ins=%d caps=%d vocab=%d kpi=%.3f",
