@@ -8511,21 +8511,19 @@ def api_suggestions_delete(sid):
 
 _STAGE_NAMES = ["Baby","Child","Teenager","Adult","Expert","Master","Transcendent","Infinite"]
 
+# Format: (insights, capabilities, vocab, avg_kpi, min_exam_pass_rate_for_prev_stage)
+# Earlier stages have STRICTER exam gates — fundamentals must be solid.
+# You cannot advance from Baby without 85% pass rate on Baby exams.
 _STAGE_THRESHOLDS = {
-    "Baby":         (      0,     0,     0, 0.00),
-    "Child":        (   5000,   500,   100, 0.10),
-    "Teenager":     (  30000,  2000,   500, 0.20),
-    "Adult":        (  80000,  5000,  1500, 0.35),
-    "Expert":       ( 150000, 10000,  3000, 0.50),
-    "Master":       ( 300000, 20000,  6000, 0.65),
-    "Transcendent": ( 600000, 40000, 12000, 0.80),
-    "Infinite":     (1200000, 80000, 25000, 0.92),
+    "Baby":         (      0,     0,     0, 0.00, 0.00),
+    "Child":        (   5000,   500,   100, 0.10, 0.85),
+    "Teenager":     (  30000,  2000,   500, 0.20, 0.80),
+    "Adult":        (  80000,  5000,  1500, 0.35, 0.75),
+    "Expert":       ( 150000, 10000,  3000, 0.50, 0.70),
+    "Master":       ( 300000, 20000,  6000, 0.65, 0.65),
+    "Transcendent": ( 600000, 40000, 12000, 0.80, 0.60),
+    "Infinite":     (1200000, 80000, 25000, 0.92, 0.55),
 }
-
-# Stage progression DB path — must point at the SAME file every other route uses.
-# Hard-coding 'data/dmai_knowledge.db' broke when DATA_PATH was set to a persistent
-# disk mount (e.g. /var/data on Render): the stage loop wrote to an ephemeral copy
-# while /api/metrics read from the disk-mounted real one, so stage never advanced.
 _DB_PATH_STAGE = os.path.join(
     os.environ.get("DATA_PATH", "data").rstrip("/").rstrip("\\"),
     "dmai_knowledge.db",
@@ -8765,11 +8763,27 @@ def _get_db_metrics():
 
 
 def _calculate_learning_stage(m):
+    """Calculate learning stage from metrics AND exam pass rates.
+
+    Stage advancement now requires BOTH:
+      1. Row-count thresholds (insights, capabilities, vocab, avg_kpi), AND
+      2. Minimum exam pass rate for the PREVIOUS stage.
+    Earlier stages have stricter gates (85% for Baby) because fundamentals
+    must be solid before advancing. A system at 0.8% Baby pass rate will
+    correctly show "Baby" regardless of how many raw insights it has.
+    """
     ins, caps, vocab, kpi = m["insights"], m["capabilities"], m["vocab"], m["avg_kpi"]
     achieved = "Baby"
     for _s in _STAGE_NAMES:
         t = _STAGE_THRESHOLDS[_s]
         if ins >= t[0] and caps >= t[1] and vocab >= t[2] and kpi >= t[3]:
+            idx = _STAGE_NAMES.index(_s)
+            if idx > 0:
+                prev_stage = _STAGE_NAMES[idx - 1]
+                required_pass_rate = _STAGE_THRESHOLDS[_s][4]
+                actual_pass_rate = _get_stage_exam_pass_rate(prev_stage)
+                if actual_pass_rate < required_pass_rate:
+                    break
             achieved = _s
     idx = _STAGE_NAMES.index(achieved)
     if idx < len(_STAGE_NAMES) - 1:
@@ -8789,6 +8803,29 @@ def _calculate_learning_stage(m):
     return achieved, within_pct
 
 
+def _get_stage_exam_pass_rate(stage: str) -> float:
+    """Return the pass rate (0.0-1.0) for exams at the given stage.
+
+    Queries the exam_history table via safe_open_kdb (routes to PG on Render).
+    Returns 0.0 if there are no exams or the table doesn't exist.
+    """
+    try:
+        conn = safe_open_kdb(_DB_PATH_STAGE)
+        row = conn.execute(
+            "SELECT COUNT(*) AS total,"
+            "       COALESCE(SUM(CASE WHEN passed = 1 THEN 1 ELSE 0 END), 0) AS passed"
+            "  FROM exam_history"
+            " WHERE stage = %s",
+            (stage,),
+        ).fetchone()
+        conn.close()
+        total = int(row[0]) if row else 0
+        passed = int(row[1]) if row else 0
+        if total == 0:
+            return 0.0
+        return passed / total
+    except Exception:
+        return 0.0
 def _write_stage_sidecar(stage, within_pct, m):
     """Backup truth source: always write stage to a small JSON file even when the
     SQLite DB has page-level corruption. The metrics route falls back to this file
