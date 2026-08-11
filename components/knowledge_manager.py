@@ -267,11 +267,28 @@ class TwoTierKnowledgeManager:
         for topic, category, content in core_topics:
             topic_id = hashlib.md5(topic.encode()).hexdigest()[:16]
             now = datetime.now().isoformat()
-            cursor.execute("""
-                INSERT OR REPLACE INTO core_knowledge
-                (id, topic, category, content, mastery_level, last_reviewed, created_at, required_for_system)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (topic_id, topic, category, content, 1.0, now, now, 1))
+            try:
+                cursor.execute("""
+                    INSERT INTO core_knowledge
+                    (id, topic, category, content, mastery_level, last_reviewed, created_at, required_for_system)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT (id) DO UPDATE SET
+                        topic = excluded.topic,
+                        category = excluded.category,
+                        content = excluded.content,
+                        mastery_level = excluded.mastery_level,
+                        last_reviewed = excluded.last_reviewed
+                """, (topic_id, topic, category, content, 1.0, now, now, 1))
+            except Exception:
+                # Fallback for SQLite: use REPLACE
+                try:
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO core_knowledge
+                        (id, topic, category, content, mastery_level, last_reviewed, created_at, required_for_system)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (topic_id, topic, category, content, 1.0, now, now, 1))
+                except Exception:
+                    pass
 
         conn.commit()
         conn.close()
@@ -284,7 +301,7 @@ class TwoTierKnowledgeManager:
     def get_knowledge(self, topic: str, prefer_core: bool = True) -> Optional[Dict]:
         """Retrieve knowledge - checks core tier first, then weighted."""
         conn = safe_open_kdb(self.db_path)
-        conn.row_factory = sqlite3.Row
+        # conn.row_factory = sqlite3.Row  # removed for PG compatibility
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -512,7 +529,7 @@ class TwoTierKnowledgeManager:
     def get_core_topics(self) -> List[Dict]:
         """Get all core syllabus topics DMAI has mastered."""
         conn = safe_open_kdb(self.db_path)
-        conn.row_factory = sqlite3.Row
+        # conn.row_factory = sqlite3.Row  # removed for PG compatibility
         cursor = conn.cursor()
         cursor.execute(
             "SELECT topic, category, mastery_level, last_reviewed "
@@ -525,7 +542,7 @@ class TwoTierKnowledgeManager:
     def get_high_weight_topics(self, min_weight: float = 0.7) -> List[Dict]:
         """Get well-learned weighted topics (candidates for promotion)."""
         conn = safe_open_kdb(self.db_path)
-        conn.row_factory = sqlite3.Row
+        # conn.row_factory = sqlite3.Row  # removed for PG compatibility
         cursor = conn.cursor()
         cursor.execute("""
             SELECT topic, weight, access_count, confidence
