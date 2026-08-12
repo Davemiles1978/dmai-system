@@ -1,0 +1,56 @@
+[
+  {
+    "source": "arXiv:2606.22844 https://arxiv.org/abs/2606.22844",
+    "date_added": "2026-06-23",
+    "domain": "metacognition_accuracy",
+    "technique": "Contextual reinstatement for agent memory (RaMem)",
+    "description": "Adds context-validity checks to long-term agent memory by anchoring retrieved fragments to their original episodic conditions and filtering memories by query-induced recall conditions.",
+    "training_prompt": "You are an assistant with a long-term memory store of past messages. For each retrieved memory snippet, reconstruct its original context (time, participants, session topic). Then answer the user question using only memories whose context is compatible with the question's implied conditions; explicitly reject tempting-but-incompatible memories and explain why.",
+    "expected_improvement": "Improve metacognition_accuracy by reducing context-collapse errors when using long-term memory; also improves transfer_learning_rate via better evidence selection."
+  },
+  {
+    "source": "arXiv:2606.23189 https://arxiv.org/html/2606.23189v1",
+    "date_added": "2026-06-23",
+    "domain": "metacognition_accuracy",
+    "technique": "Contextual integrity benchmark for computer-use agents (AgentCIBench)",
+    "description": "Executable scenarios to measure information leakage in computer-use agents across visual co-location, task-ambiguity overshare, and recipient misalignment failure modes.",
+    "training_prompt": "Given a simulated multi-app workspace and a user request with an intended recipient, produce the minimal necessary response. Before finalizing, list 'must-share' and 'must-not-share' items; then generate the response and a self-check that confirms no must-not-share items are leaked.",
+    "expected_improvement": "Improve metacognition_accuracy (self-checking against leakage) and agentic_capability_score (reliable end-to-end execution without oversharing)."
+  },
+  {
+    "source": "arXiv:2606.23449 https://arxiv.org/abs/2606.23449",
+    "date_added": "2026-06-23",
+    "domain": "agentic_capability_score",
+    "technique": "OS-level agent harness primitives (AOHP)",
+    "description": "Treats agents as first-class OS actors and introduces mechanisms for service composition, efficient agent interfaces, and secure information flow to improve completion, cost, and policy compliance.",
+    "training_prompt": "Design an 'agent harness' spec for a mobile/desktop OS where the agent is a first-class actor. Define: (1) service composition API, (2) low-latency interaction interface, (3) information-flow policy model. Provide example tasks and how the harness enforces least privilege.",
+    "expected_improvement": "Improve agentic_capability_score and sample_efficiency_trend by defining clearer action spaces + policy constraints, reducing trial-and-error tool use."
+  },
+  {
+    "source": "arXiv:2606.23595 https://arxiv.org/abs/2606.23595",
+    "date_added": "2026-06-23",
+    "domain": "zero_shot_success_count",
+    "technique": "Test-time search/verify via sequential-parallel-aggregate RL (SPIRAL)",
+    "description": "Trains models to allocate inference compute across sequential search, parallel candidate generation, and aggregation to better verify and refine generations at test time.",
+    "training_prompt": "For each user task, generate (A) a sequential search plan, (B) 3 parallel solution candidates, and (C) an aggregation step that verifies claims and selects/repairs the best candidate. Output the final answer plus a short verification log.",
+    "expected_improvement": "Improve zero_shot_success_count and transfer_learning_rate by strengthening verification/refinement loops; may improve recursive_self_improvement_rate via structured self-repair."
+  },
+  {
+    "source": "arXiv:2606.22610 https://arxiv.org/abs/2606.22610v1",
+    "date_added": "2026-06-23",
+    "domain": "recursive_self_improvement_rate",
+    "technique": "Harnessed multi-agent research loop with stoppable hypothesis maps (PaperClaw)",
+    "description": "Multi-agent research pipeline that curates literature/datasets, forms a pre-registered result contract, and iterates propose-test-reflect with a full-lifecycle memory record that can be paused/resumed.",
+    "training_prompt": "Create a mini research loop: (1) propose a hypothesis, (2) define a test and success criteria, (3) run a simulated test producing an outcome, (4) reflect and update the hypothesis map. Persist the run state as a structured 'living record' and show how the system can resume after interruption.",
+    "expected_improvement": "Improve recursive_self_improvement_rate and skill_acquisition_rate by practicing formal propose-test-reflect loops with persistent artifacts."
+  },
+  {
+    "source": "github.com/topoteretes/cognee https://github.com/topoteretes/cognee",
+    "date_added": "2026-06-23",
+    "domain": "multi_modal_integration_score",
+    "technique": "Lightweight agent memory library (Cognee)",
+    "description": "A minimal library for adding memory to AI agents, surfaced on GitHub trending (Python) as a simple integration target.",
+    "training_prompt": "Integrate an external memory component into an agent: define what gets written (observations, decisions, outcomes), how retrieval is triggered, and how conflicts are resolved. Provide a short pseudo-implementation plus an evaluation plan for memory usefulness.",
+    "expected_improvement": "Improve multi_modal_integration_score (if storing multimodal references) and agentic_capability_score (better continuity across sessions)."
+  }
+]
