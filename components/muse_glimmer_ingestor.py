@@ -12,8 +12,8 @@ from typing import Dict, List, Optional
 import requests
 
 logger = logging.getLogger("dmai.muse_ingestion")
-HF_BUCKET = "https://huggingface.co/buckets/davemiles1978/Muse-Glimmer-30B-bucket"
-HF_API = "https://huggingface.co/api/buckets/davemiles1978/Muse-Glimmer-30B-bucket"
+HF_BUCKET = "https://huggingface.co/meta-models/Muse-Glimmer-30B"
+HF_API = "https://huggingface.co/api/models/meta-models/Muse-Glimmer-30B"
 
 
 class MuseGlimmerIngestor:
@@ -66,7 +66,7 @@ class MuseGlimmerIngestor:
 
         # Method 1: Direct bucket resolve
         urls = [
-            f"https://huggingface.co/buckets/{repo_id}/resolve/main/{filename}",
+            f"https://huggingface.co/{repo_id}/resolve/main/{filename}",
             f"https://huggingface.co/{repo_id}/resolve/main/{filename}",
             f"https://huggingface.co/datasets/{repo_id}/resolve/main/{filename}",
             f"https://huggingface.co/models/{repo_id}/resolve/main/{filename}",
@@ -159,7 +159,7 @@ class MuseGlimmerIngestor:
         if not isinstance(filename, str) or "/" in filename or ".." in filename:
             logger.warning(f"Skipping invalid filename: {filename}")
             return None
-        url = f"{HF_BUCKET}/resolve/main/{filename}"
+        url = f"https://huggingface.co/meta-models/Muse-Glimmer-30B/resolve/main/{filename}"
         dest = self.ingest_dir / filename
         dest.parent.mkdir(parents=True, exist_ok=True)
 
