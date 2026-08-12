@@ -2628,7 +2628,7 @@ td,th{{border:1px solid #333;padding:8px;text-align:left}}
   <a href="/admin" style="background:#ff6584;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none">🔐 Admin Panel</a>
 </p>
 <p style="margin-top:8px"><a href="/api/status">/api/status</a> | <a href="/api/training/status">/api/training/status</a> |
-<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a></p>
+<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a> | <a href="/api/admin/system-monitor">/api/admin/system-monitor</a></p>
 <h2>Active Components</h2>
 <table><tr><th>Component</th><th>Status</th></tr>
 {"".join(f"<tr><td>{k}</td><td style='color:#00d4aa'>active</td></tr>" for k in components)}
@@ -4074,6 +4074,25 @@ def api_admin_training_performance():
     except Exception as e:
         logger.warning("/api/admin/training/performance failed: %s", e)
         return jsonify({"ok": False, "error": str(e)}), 200
+
+
+@app.route("/api/admin/system-monitor", methods=["GET"])
+def api_admin_system_monitor():
+    """Live system resource usage for admin dashboard."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        mon = components.get("system_monitor")
+        if mon and hasattr(mon, "snapshot"):
+            return jsonify(mon.snapshot())
+        # Fallback: read state file
+        import json as _mj
+        if os.path.exists("data/system_monitor_state.json"):
+            with open("data/system_monitor_state.json", "r") as f:
+                return jsonify(_mj.load(f))
+        return jsonify({"error": "monitor not running"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 @app.route("/api/admin/training/ready", methods=["GET"])
