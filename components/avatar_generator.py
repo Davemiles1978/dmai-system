@@ -22,8 +22,19 @@ class AvatarGenerator:
     """Generates consistent Alex/Alexa avatar images using reference images."""
 
     def __init__(self):
-        self.ref_dir = REFERENCE_DIR
-        self.gen_dir = GENERATED_DIR
+        # Resolve paths for both local and Render environments
+        candidates = [
+            REFERENCE_DIR,
+            Path("data") / REFERENCE_DIR,
+            Path("/opt/render/project/src") / REFERENCE_DIR,
+        ]
+        self.ref_dir = next((p for p in candidates if p.exists()), REFERENCE_DIR)
+        gen_candidates = [
+            GENERATED_DIR,
+            Path("data") / GENERATED_DIR,
+            Path("/opt/render/project/src") / GENERATED_DIR,
+        ]
+        self.gen_dir = next((p for p in gen_candidates if p.exists()), GENERATED_DIR)
         self.gen_dir.mkdir(parents=True, exist_ok=True)
         self._load_persona_definitions()
 
@@ -65,9 +76,18 @@ class AvatarGenerator:
     def get_reference_images(self, persona: str) -> List[Path]:
         """Get list of reference images for a persona."""
         ref_folder = self.ref_dir / self.personas.get(persona, {}).get("ref_folder", persona)
-        if not ref_folder.exists():
-            return []
-        return sorted(ref_folder.glob("*.png")) + sorted(ref_folder.glob("*.jpg"))
+        # Try multiple path resolutions for Render compatibility
+        candidates = [
+            ref_folder,
+            Path("data") / ref_folder,
+            Path("/opt/render/project/src") / ref_folder,
+        ]
+        for folder in candidates:
+            if folder.exists():
+                images = sorted(folder.glob("*.png")) + sorted(folder.glob("*.jpg"))
+                if images:
+                    return images
+        return []
 
     def generate_image(self, persona: str, prompt: str, output_name: str = None) -> Optional[Dict]:
         """Generate a new avatar image using reference images for consistency.
