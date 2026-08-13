@@ -2635,7 +2635,7 @@ td,th{{border:1px solid #333;padding:8px;text-align:left}}
   <a href="/admin" style="background:#ff6584;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none">🔐 Admin Panel</a>
 </p>
 <p style="margin-top:8px"><a href="/api/status">/api/status</a> | <a href="/api/training/status">/api/training/status</a> |
-<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a> | <a href="/api/admin/system-monitor">/api/admin/system-monitor</a></p>
+<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a> | <a href="/api/admin/system-monitor">/api/admin/system-monitor</a> | <a href="/api/admin/service-toggles">/api/admin/service-toggles</a></p>
 <h2>Active Components</h2>
 <table><tr><th>Component</th><th>Status</th></tr>
 {"".join(f"<tr><td>{k}</td><td style='color:#00d4aa'>active</td></tr>" for k in components)}
@@ -4081,6 +4081,35 @@ def api_admin_training_performance():
     except Exception as e:
         logger.warning("/api/admin/training/performance failed: %s", e)
         return jsonify({"ok": False, "error": str(e)}), 200
+
+
+@app.route("/api/admin/service-toggles", methods=["GET"])
+def api_admin_service_toggles_get():
+    """Get current service toggle state."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        from components.service_toggles import load_toggles
+        return jsonify(load_toggles())
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/api/admin/service-toggles/<service_key>", methods=["POST"])
+def api_admin_service_toggles_set(service_key):
+    """Enable/disable a service."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        from components.service_toggles import set_enabled
+        data = request.get_json() or {}
+        enabled = data.get("enabled", False)
+        ok = set_enabled(service_key, enabled)
+        if ok:
+            return jsonify({"ok": True, "service": service_key, "enabled": enabled})
+        return jsonify({"error": f"Unknown service: {service_key}"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 @app.route("/api/admin/system-monitor", methods=["GET"])
