@@ -2636,7 +2636,7 @@ td,th{{border:1px solid #333;padding:8px;text-align:left}}
   <a href="/admin" style="background:#ff6584;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none">🔐 Admin Panel</a>
 </p>
 <p style="margin-top:8px"><a href="/api/status">/api/status</a> | <a href="/api/training/status">/api/training/status</a> |
-<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a> | <a href="/api/admin/system-monitor">/api/admin/system-monitor</a> | <a href="/api/admin/avatar/generate">Avatar Gen</a> | <a href="/api/admin/avatar/list-generated">Avatar Approval</a> | <a href="/api/admin/avatar/references">Avatar Refs</a> | <a href="/api/admin/service-toggles">/api/admin/service-toggles</a></p>
+<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a> | <a href="/api/admin/system-monitor">/api/admin/system-monitor</a> | <a href="/api/admin/content/generate">Content Gen</a> | <a href="/api/admin/content/pending">Content Approval</a> | <a href="/api/admin/avatar/generate">Avatar Gen</a> | <a href="/api/admin/avatar/list-generated">Avatar Approval</a> | <a href="/api/admin/avatar/references">Avatar Refs</a> | <a href="/api/admin/service-toggles">/api/admin/service-toggles</a></p>
 <h2>Active Components</h2>
 <table><tr><th>Component</th><th>Status</th></tr>
 {"".join(f"<tr><td>{k}</td><td style='color:#00d4aa'>active</td></tr>" for k in components)}
@@ -4109,6 +4109,67 @@ def api_admin_service_toggles_set(service_key):
         if ok:
             return jsonify({"ok": True, "service": service_key, "enabled": enabled})
         return jsonify({"error": f"Unknown service: {service_key}"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/api/admin/content/generate", methods=["POST"])
+def api_admin_content_generate():
+    """Generate content for a platform. Body: {platform, topic, content_type}"""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        from components.alex_content_pipeline import AlexContentPipeline
+        pipeline = AlexContentPipeline()
+        data = request.get_json() or {}
+        platform = data.get("platform", "linkedin")
+        topic = data.get("topic")
+        content_type = data.get("content_type")
+        entry = pipeline.generate_content(platform, content_type, topic)
+        if entry:
+            return jsonify({"ok": True, "entry": entry})
+        return jsonify({"error": "generation failed"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/content/pending", methods=["GET"])
+def api_admin_content_pending():
+    """List content awaiting approval."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        from components.alex_content_pipeline import AlexContentPipeline
+        pipeline = AlexContentPipeline()
+        return jsonify({"entries": pipeline.get_pending_approvals(), "stats": pipeline.get_queue_stats()})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/api/admin/content/approve/<content_id>", methods=["POST"])
+def api_admin_content_approve(content_id):
+    """Approve content for posting."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        from components.alex_content_pipeline import AlexContentPipeline
+        pipeline = AlexContentPipeline()
+        ok = pipeline.approve_content(content_id)
+        return jsonify({"ok": ok, "content_id": content_id})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/api/admin/content/reject/<content_id>", methods=["POST"])
+def api_admin_content_reject(content_id):
+    """Reject content."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        from components.alex_content_pipeline import AlexContentPipeline
+        pipeline = AlexContentPipeline()
+        ok = pipeline.reject_content(content_id)
+        return jsonify({"ok": ok, "content_id": content_id})
     except Exception as e:
         return jsonify({"error": str(e)})
 
