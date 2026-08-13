@@ -1708,6 +1708,13 @@ except Exception as e:
 
 loaded = sum(1 for v in components.values() if v is not None)
 logger.info("Components loaded: %d", loaded)
+# Start system monitor for admin dashboard
+try:
+    from components.system_monitor import start_system_monitor
+    components["system_monitor"] = start_system_monitor(interval=30)
+    logger.info("SystemMonitor started")
+except Exception as _e:
+    logger.warning(f"SystemMonitor failed: {_e}")
 
 # ── Kaizen store (P1-6: atomic writes) ───────────────────────────────────────
 _KAIZEN_FILE = Path(DATA_PATH) / "kaizen_proposals.jsonl"
