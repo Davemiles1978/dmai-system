@@ -14,7 +14,7 @@ from typing import Optional, Dict, List
 
 logger = logging.getLogger("dmai.avatar_generator")
 
-REFERENCE_DIR = Path("data/avatars/reference_images")
+REFERENCE_DIR = Path("static/avatar_references")
 GENERATED_DIR = Path("data/avatars/generated")
 
 
