@@ -335,6 +335,8 @@ class PGCursor:
         """Re-execute on the same cursor. Returns self for chaining."""
         if params and not isinstance(params, (tuple, list, dict)):
             params = (params,)
+        # Translate SQLite ? placeholders to PostgreSQL %s
+        sql = sql.replace('?', '%s')
         self._cur.execute(sql, params or None)
         return self
 
