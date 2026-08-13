@@ -2635,7 +2635,7 @@ td,th{{border:1px solid #333;padding:8px;text-align:left}}
   <a href="/admin" style="background:#ff6584;color:#fff;padding:8px 18px;border-radius:6px;text-decoration:none">🔐 Admin Panel</a>
 </p>
 <p style="margin-top:8px"><a href="/api/status">/api/status</a> | <a href="/api/training/status">/api/training/status</a> |
-<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a> | <a href="/api/admin/system-monitor">/api/admin/system-monitor</a> | <a href="/api/admin/service-toggles">/api/admin/service-toggles</a></p>
+<a href="/api/kaizen">/api/kaizen</a> | <a href="/api/admin/circuit-breakers">/api/admin/circuit-breakers</a> | <a href="/api/admin/system-monitor">/api/admin/system-monitor</a> | <a href="/api/admin/avatar/generate">Avatar Gen</a> | <a href="/api/admin/avatar/list-generated">Avatar Approval</a> | <a href="/api/admin/avatar/references">Avatar Refs</a> | <a href="/api/admin/service-toggles">/api/admin/service-toggles</a></p>
 <h2>Active Components</h2>
 <table><tr><th>Component</th><th>Status</th></tr>
 {"".join(f"<tr><td>{k}</td><td style='color:#00d4aa'>active</td></tr>" for k in components)}
@@ -4110,6 +4110,98 @@ def api_admin_service_toggles_set(service_key):
         return jsonify({"error": f"Unknown service: {service_key}"}), 404
     except Exception as e:
         return jsonify({"error": str(e)})
+
+
+@app.route("/api/admin/avatar/references", methods=["GET"])
+def api_admin_avatar_references():
+    """List reference images for both personas."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        from components.avatar_generator import AvatarGenerator
+        gen = AvatarGenerator()
+        return jsonify(gen.list_reference_images())
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/api/admin/avatar/generate", methods=["POST"])
+def api_admin_avatar_generate():
+    """Generate a new avatar image. Body: {persona, prompt, output_name}"""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        from components.avatar_generator import generate_avatar
+        data = request.get_json() or {}
+        persona = data.get("persona", "alex_public")
+        prompt = data.get("prompt", "")
+        output_name = data.get("output_name")
+        if not prompt:
+            return jsonify({"error": "prompt is required"}), 400
+        result = generate_avatar(persona, prompt, output_name)
+        if result:
+            return jsonify({"ok": True, **result})
+        return jsonify({"error": "image generation failed"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/avatar/approve", methods=["POST"])
+def api_admin_avatar_approve():
+    """Approve a generated image. Body: {path, persona, approved}"""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        data = request.get_json() or {}
+        image_path = data.get("path", "")
+        approved = data.get("approved", False)
+        persona = data.get("persona", "alex_public")
+
+        # Move approved images to the reference folder for future consistency
+        if approved and image_path and os.path.exists(image_path):
+            ref_dir = Path("data/avatars/reference_images") / persona
+            ref_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(image_path, ref_dir / Path(image_path).name)
+            logger.info(f"Avatar approved and added to references: {image_path}")
+
+        # Record approval in state file
+        approval_state = "data/avatar_approvals.json"
+        approvals = {}
+        if os.path.exists(approval_state):
+            with open(approval_state, "r") as f:
+                approvals = json.load(f)
+        approvals[image_path] = {
+            "approved": approved,
+            "persona": persona,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        with open(approval_state, "w") as f:
+            json.dump(approvals, f, indent=2)
+
+        return jsonify({"ok": True, "path": image_path, "approved": approved})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/avatar/list-generated", methods=["GET"])
+def api_admin_avatar_list_generated():
+    """List all generated avatar images pending approval."""
+    if not _require_auth():
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        gen_dir = Path("data/avatars/generated")
+        images = []
+        if gen_dir.exists():
+            for img in sorted(gen_dir.glob("*.png"), reverse=True):
+                images.append({
+                    "path": str(img),
+                    "name": img.name,
+                    "size_kb": round(img.stat().st_size / 1024),
+                    "created": img.stat().st_mtime,
+                })
+        return jsonify({"images": images})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/admin/system-monitor", methods=["GET"])

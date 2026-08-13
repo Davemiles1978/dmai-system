@@ -57,25 +57,25 @@ class AlexRivieraContentEngine:
             logger.info("AlexRiviera: no insights available for post today")
 
     def generate_daily_insight_post(self) -> dict | None:
-        """Pull top insights from last 24h and write Twitter thread + LinkedIn post"""
+        """Pull top insights from the insights table and write Twitter thread + LinkedIn post"""
         try:
             if not os.path.exists(self.db_path):
                 return None
             conn = safe_open_kdb(self.db_path)
-            yesterday = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%d")
+
+            # Try ar_content first (Alex's own generated content)
             rows = conn.execute(
-                "SELECT COALESCE(content, description, title, '') as content FROM ar_content WHERE created_at >= ? ORDER BY id DESC LIMIT 5",
-                (yesterday,)
+                "SELECT COALESCE(content, description, title, '') as content FROM ar_content ORDER BY id DESC LIMIT 5"
             ).fetchall()
-            conn.close()
 
             if not rows:
-                # Fall back to most recent insights regardless of date
-                conn = safe_open_kdb(self.db_path)
+                # Fall back to insights table — 350k+ available
                 rows = conn.execute(
-                    "SELECT COALESCE(content, description, title, '') as content FROM ar_content ORDER BY id DESC LIMIT 3"
+                    "SELECT insight_text as content FROM insights "
+                    "WHERE insight_text IS NOT NULL AND LENGTH(insight_text) > 100 "
+                    "ORDER BY id DESC LIMIT 5"
                 ).fetchall()
-                conn.close()
+            conn.close()
 
             if not rows:
                 return None
