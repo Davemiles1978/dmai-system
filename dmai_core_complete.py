@@ -7629,7 +7629,7 @@ def api_metrics():
         _30d = (_dt2.utcnow() - _td2(days=30)).isoformat()
         try:
             _rows = _conn.execute("""
-                SELECT strftime('%Y-%m-%d', created_at) as day, COUNT(*) as cnt
+                SELECT to_char(created_at, 'YYYY-MM-DD') as day, COUNT(*) as cnt
                 FROM insights WHERE created_at > ?
                 GROUP BY day ORDER BY day ASC
             """, (_30d,)).fetchall()
@@ -13440,7 +13440,7 @@ def api_heartbeat():
     try:
         _c = _hb_conn()
         rows = _c.execute(
-            """SELECT strftime('%Y-%m-%dT%H:00:00', created_at) as hour_bucket,
+            """SELECT to_char(created_at, 'YYYY-MM-DD"T"HH24:00:00') as hour_bucket,
                       COUNT(*) as cnt
                FROM insights
                WHERE created_at > ?
@@ -13594,7 +13594,7 @@ def api_stage_analytics():
                 if col not in cols:
                     conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} TEXT")
                     conn.execute(
-                        f"UPDATE {table} SET {col} = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE {col} IS NULL"
+                        f"UPDATE {table} SET {col} = CURRENT_TIMESTAMP WHERE {col} IS NULL"
                     )
                     conn.commit()
             except Exception as _ex:
@@ -13618,7 +13618,7 @@ def api_stage_analytics():
 
         # ── 2. Daily insight ingestion rate (last 30 days) ───────────────────
         daily_rows = conn.execute("""
-            SELECT strftime('%Y-%m-%d', created_at) as day,
+            SELECT to_char(created_at, 'YYYY-MM-DD') as day,
                    COUNT(*) as cnt
             FROM insights
             WHERE created_at > ?
@@ -13629,7 +13629,7 @@ def api_stage_analytics():
 
         # ── 3. Daily capability rate (last 30 days) ──────────────────────────
         cap_rows = conn.execute("""
-            SELECT strftime('%Y-%m-%d', created_at) as day,
+            SELECT to_char(created_at, 'YYYY-MM-DD') as day,
                    COUNT(*) as cnt
             FROM capabilities
             WHERE created_at > ?
@@ -13665,12 +13665,20 @@ def api_stage_analytics():
 
         # ── 5. Stage history (all advances) ──────────────────────────────────
         try:
-            hist_rows = conn.execute("""
-                SELECT stage, prev_stage, insights, capabilities, vocab,
-                       avg_kpi, within_pct, recorded_at
-                FROM stage_history
-                ORDER BY recorded_at ASC
-            """).fetchall()
+            # Check if stage_history table exists first
+            try:
+                _sh_check = conn.execute("SELECT 1 FROM stage_history LIMIT 1").fetchone()
+            except Exception:
+                _sh_check = None
+            if _sh_check is None:
+                hist_rows = []
+            else:
+                hist_rows = conn.execute("""
+                    SELECT stage, prev_stage, insights, capabilities, vocab,
+                           avg_kpi, within_pct, recorded_at
+                    FROM stage_history
+                    ORDER BY recorded_at ASC
+                """).fetchall()
             stage_history = [{
                 "stage":        r["stage"],
                 "prev_stage":   r["prev_stage"],

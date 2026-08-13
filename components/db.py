@@ -55,6 +55,10 @@ def _pg_connect():
 
 
 def _pg_get_conn():
+    return _pg_get_conn_pooled()
+
+
+def _pg_get_conn_legacy():
     """Get a connection from the pool or create new. Returns None if PG unavailable."""
     global _pg_available, _pg_pool
     if _pg_available is False:
@@ -117,6 +121,61 @@ def _pg_return_conn(conn):
                 conn.close()
             except Exception:
                 pass
+
+
+# ---------------------------------------------------------------------------
+# PostgreSQL connection pool — reuses connections instead of leaking them
+# ---------------------------------------------------------------------------
+import threading as _threading
+
+_PG_POOL = []
+_PG_POOL_LOCK = _threading.Lock()
+_PG_POOL_MAX = 10
+_PG_POOL_TIMEOUT = 30  # seconds before idle connections are closed
+
+
+def _pg_pool_get():
+    """Get a connection from the pool or create a new one."""
+    with _PG_POOL_LOCK:
+        # Close any expired connections
+        now = __import__('time').time()
+        while _PG_POOL:
+            entry = _PG_POOL[-1]
+            if now - entry["created"] > _PG_POOL_TIMEOUT:
+                try:
+                    entry["conn"].close()
+                except Exception:
+                    pass
+                _PG_POOL.pop()
+            else:
+                break
+        if _PG_POOL:
+            return _PG_POOL.pop()["conn"]
+    return None
+
+
+def _pg_pool_put(conn):
+    """Return a connection to the pool."""
+    with _PG_POOL_LOCK:
+        if len(_PG_POOL) < _PG_POOL_MAX:
+            _PG_POOL.append({"conn": conn, "created": __import__('time').time()})
+        else:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+
+def _pg_get_conn_pooled():
+    """Get a pooled PG connection."""
+    conn = _pg_pool_get()
+    if conn is None:
+        import psycopg2
+        dsn = __import__('os').environ.get("DATABASE_URL", "")
+        if dsn.startswith("postgres://"):
+            dsn = "postgresql://" + dsn[len("postgres://"):]
+        conn = psycopg2.connect(dsn, connect_timeout=5)
+    return conn
 
 
 # ---------------------------------------------------------------------------
