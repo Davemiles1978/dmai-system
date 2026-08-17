@@ -1,0 +1,62 @@
+[
+  {
+    "source": "arXiv:2606.26797",
+    "url": "https://arxiv.org/abs/2606.26797",
+    "date_added": "2026-06-26",
+    "domain": "sample_efficiency_trend",
+    "technique": "Early-token loss based reasoning-data curation",
+    "description": "Curate diverse/difficult reasoning SFT examples by scoring only the first ~100 reasoning tokens at perturbed checkpoints; improves token efficiency during data selection.",
+    "training_prompt": "Given a batch of candidate reasoning traces (problem + chain-of-thought + answer), propose an inexpensive heuristic to rank examples by difficulty/diversity using only the first 100 reasoning tokens; output a ranked list and rationale.",
+    "expected_improvement": "sample_efficiency_trend and transfer_learning_rate by improving the quality/coverage of reasoning fine-tuning data with lower curation cost."
+  },
+  {
+    "source": "arXiv:2605.09018",
+    "url": "https://arxiv.org/abs/2605.09018",
+    "date_added": "2026-06-26",
+    "domain": "recursive_self_improvement_rate",
+    "technique": "Evolutionary Ensemble of Agents (EvE) with Elo-based credit assignment",
+    "description": "Maintain co-evolving populations of code solvers and guidance states; evaluate via synchronous races and update Elo ratings from marginal contribution, enabling stage-adaptive agent behavior.",
+    "training_prompt": "Design an agentic loop that runs N coding agents in parallel, scores each by marginal contribution to a shared solution, and evolves their guidance prompts; specify evaluation, selection, mutation, and stopping criteria.",
+    "expected_improvement": "recursive_self_improvement_rate and agentic_capability_score by enabling a structured self-revision loop with measurable contribution signals."
+  },
+  {
+    "source": "arXiv:2602.13769",
+    "url": "https://arxiv.org/abs/2602.13769",
+    "date_added": "2026-06-26",
+    "domain": "multi_agent_coordination",
+    "technique": "OR-Agent research-tree workflow with reflection-as-optimization",
+    "description": "Tree-structured hypothesis management with systematic backtracking; reflections act as verbal gradients/momentum and memory compression as semantic weight decay for research dynamics.",
+    "training_prompt": "Given an open-ended optimization task, produce a branching research tree (hypotheses, experiments, backtracks). After each step, write short-term and long-term reflections and compress them into persistent memory entries.",
+    "expected_improvement": "agentic_capability_score and metacognition_accuracy by improving structured planning/backtracking and reflective memory management."
+  },
+  {
+    "source": "arXiv:2602.05281",
+    "url": "https://arxiv.org/abs/2602.05281",
+    "date_added": "2026-06-26",
+    "domain": "zero_shot_success_count",
+    "technique": "Advantage re-weighting to prevent entropy collapse in RLVR reasoning",
+    "description": "Re-weights advantages using prompt perplexity and answer confidence to redistribute probability mass toward under-explored correct reasoning chains, improving Pass@k and diversity.",
+    "training_prompt": "Propose a reward-shaping/advantage re-weighting method for an RLVR reasoning agent that avoids mode collapse; include which signals (perplexity, confidence) you would log and how you would update weights.",
+    "expected_improvement": "zero_shot_success_count and transfer_learning_rate by preserving diverse correct solution paths under RL fine-tuning."
+  },
+  {
+    "source": "github.com/topoteretes/cognee",
+    "url": "https://github.com/topoteretes/cognee",
+    "date_added": "2026-06-26",
+    "domain": "metacognition_accuracy",
+    "technique": "Persistent agent memory with combined graph + vector retrieval",
+    "description": "An open-source memory layer for agents offering remember/recall/forget/improve operations with graph + vector + session memory backends.",
+    "training_prompt": "Implement (or simulate) a four-function memory API (remember/recall/forget/improve) and demonstrate how an agent uses it to maintain long-term user preferences across sessions with retrieval + summarization.",
+    "expected_improvement": "metacognition_accuracy and multi_modal_integration_score via better long-term memory and structured retrieval."
+  },
+  {
+    "source": "github.com/stanfordnlp/dspy",
+    "url": "https://github.com/stanfordnlp/dspy",
+    "date_added": "2026-06-26",
+    "domain": "skill_acquisition_rate",
+    "technique": "Declarative LM programs with prompt/weight optimization loops",
+    "description": "Framework for programming LMs as modular pipelines that can be optimized (prompts/weights) for tasks including retrieval, multi-stage programs, and agent loops.",
+    "training_prompt": "Convert a brittle prompt-only workflow into a modular program with explicit signatures and an optimization loop; define evaluation metrics and show how the optimizer updates instructions/demos.",
+    "expected_improvement": "skill_acquisition_rate and transfer_learning_rate by turning prompts into optimizable programs with measurable feedback."
+  }
+]
